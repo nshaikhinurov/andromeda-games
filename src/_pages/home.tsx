@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
+import { Button } from "~/shared/ui/button";
 
 export function HomePage() {
   const router = useRouter();
@@ -30,14 +31,9 @@ export function HomePage() {
         Тренируй память, играя с цветами и цифрами.
       </motion.p>
 
-      <motion.button
-        className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleStart}
-      >
+      <Button preset="blue" onClick={handleStart}>
         Начать игру
-      </motion.button>
+      </Button>
     </div>
   );
 }
