@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
-import { Button } from "~/shared/ui/button";
+import { useRouter } from "next/navigation";
+import { Button } from "~/fsd/shared/ui/button";
 
 export function HomePage() {
   const router = useRouter();
@@ -31,7 +31,12 @@ export function HomePage() {
         Тренируй память, играя с цветами и цифрами.
       </motion.p>
 
-      <Button preset="blue" onClick={handleStart}>
+      <Button
+        preset="blue"
+        onClick={handleStart}
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0, transition: { duration: 1, delay: 0.5 } }}
+      >
         Начать игру
       </Button>
     </div>

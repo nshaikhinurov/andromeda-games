@@ -1,5 +1,3 @@
-import { HomePage } from "../_pages/home";
+import { HomePage } from "../fsd/pages/home";
 
-export default function Home() {
-  return <HomePage />;
-}
+export default HomePage;

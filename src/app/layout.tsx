@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { BokehBackground } from "~/fsd/shared/ui/bokeh-background";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,9 +26,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-100 text-slate-900 min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-800 text-slate-900 min-h-screen min-w-screen flex flex-col`}
       >
-        <main className="flex-1 flex flex-col items-center justify-center">
+        {/* <BokehBackground /> */}
+        <main className="flex-1 flex flex-col items-center justify-center relative z-10">
           {children}
         </main>
       </body>
