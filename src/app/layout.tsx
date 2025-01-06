@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-800 text-slate-900 min-h-screen min-w-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-800 text-slate-900 min-h-screen min-w-screen`}
       >
         {/* <BokehBackground /> */}
         <main className="flex-1 flex flex-col items-center justify-center relative z-10">

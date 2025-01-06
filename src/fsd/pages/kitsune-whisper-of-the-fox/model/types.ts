@@ -1,19 +1,16 @@
 export const TILE_TYPES = [
+  "white",
   "red",
-  "orange",
-  "amber",
-  "yellow",
-  "lime",
-  "cyan",
-  "blue",
-  "indigo",
-  "purple",
-  "pink",
+  "dark",
+  "sakura",
+  "energy",
+  "chaos",
 ] as const;
 
 export type Tile = {
   id: string;
   type: (typeof TILE_TYPES)[number];
+  isRemoved: boolean;
 };
 
 export type GameGrid = Tile[][];

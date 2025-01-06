@@ -1,7 +1,8 @@
-import { LayoutGroup, motion } from "motion/react";
-import { FC, useCallback, useState } from "react";
-import { GameGrid, Tile } from "../model/types";
+import { useEffect, useMemo, useState } from "react";
+import { generateInitialGrid, useGameStore } from "../model/grid-controller";
+import { Tile } from "../model/types";
 import { TileComponent } from "./tile";
+import { LoadingScreen } from "./loading-screen";
 
 type TileSelection = {
   tile: Tile;
@@ -11,16 +12,16 @@ type TileSelection = {
   };
 };
 
-type GameGridComponentProps = {
-  initialGrid: GameGrid;
-};
-
-export const GameGridComponent: FC<GameGridComponentProps> = ({
-  initialGrid,
-}) => {
-  const [grid, setGrid] = useState(initialGrid);
+export const GameGridComponent = () => {
+  const { grid, setGrid, moveTile, processMatches } = useGameStore();
   const [tileSelections, setTileSelections] = useState<TileSelection[]>([]);
-  console.log("🚀 ~ tileSelections:", tileSelections);
+
+  // Инициализация начальной сетки
+  useEffect(() => {
+    console.log("Initialize grid");
+    setGrid(generateInitialGrid(8));
+    console.log("Initialized grid");
+  }, [setGrid]);
 
   // const handleSwipe = (
 
@@ -106,33 +107,18 @@ export const GameGridComponent: FC<GameGridComponentProps> = ({
     handleSwap(tile, firstSelection.tile);
   };
 
-  const handleSwap = (firstTile: Tile, secondTile: Tile) => {
-    setGrid((grid) => {
-      return grid.map((row) =>
-        row.map((tile) => {
-          if (tile.id === firstTile.id) {
-            return secondTile;
-          }
-
-          if (tile.id === secondTile.id) {
-            return firstTile;
-          }
-
-          return tile;
-        })
-      );
-    });
+  const handleSwap = async (firstTile: Tile, secondTile: Tile) => {
+    await moveTile(firstTile, secondTile);
+    await processMatches();
   };
 
-  const renderTile = useCallback(
-    (tile: Tile, rowIndex: number, colIndex: number) => {
+  let a = 4;
+
+  const tiles = useMemo(() => {
+    const renderTile = (tile: Tile, rowIndex: number, colIndex: number) => {
       const isSelected = tileSelections.some(
         (selection) => selection.tile.id === tile.id
       );
-
-      if (isSelected) {
-        console.log("🚀 ~ isSelected:", rowIndex, colIndex);
-      }
 
       return (
         <TileComponent
@@ -142,15 +128,18 @@ export const GameGridComponent: FC<GameGridComponentProps> = ({
           onSelect={() => handleSelect(tile, rowIndex, colIndex)}
         />
       );
-    },
-    [tileSelections]
-  );
+    };
 
-  return (
-    <div className="grid grid-rows-8 grid-cols-8 gap-1">
-      {grid.flatMap((row, rowIndex) =>
-        row.map((tile, colIndex) => renderTile(tile, rowIndex, colIndex))
-      )}
+    return grid.flatMap((row, rowIndex) =>
+      row.map((tile, colIndex) => renderTile(tile, rowIndex, colIndex))
+    );
+  }, []);
+
+  return tiles.length > 0 ? (
+    <div className="grid grid-rows-8 grid-cols-8 border-8 border-slate-500 bg-slate-700 rounded-lg p-2 gap-2">
+      {tiles}
     </div>
+  ) : (
+    <LoadingScreen />
   );
 };

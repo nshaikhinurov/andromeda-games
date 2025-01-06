@@ -50,7 +50,7 @@ export function HomePage() {
           </Button>
           <Button
             preset="red"
-            onClick={() => router.push("/match-three-game")}
+            onClick={() => router.push("/kitsune-whisper-of-the-fox")}
             initial={{
               opacity: 0,
               x: 50,
@@ -60,7 +60,7 @@ export function HomePage() {
               x: 0,
             }}
           >
-            Match Three
+            Kitsune: Whisper of the Fox
           </Button>
         </MotionConfig>
       </div>
