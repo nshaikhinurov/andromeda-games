@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, TargetAndTransition } from "motion/react";
+import { motion, PanInfo, TargetAndTransition } from "motion/react";
 import Image from "next/image";
 import chaos from "public/kitsune/chaos.svg";
 import dark from "public/kitsune/dark.svg";
@@ -8,8 +8,8 @@ import energy from "public/kitsune/energy.svg";
 import red from "public/kitsune/red.svg";
 import sakura from "public/kitsune/sakura.svg";
 import white from "public/kitsune/white.svg";
-import React from "react";
-import { Tile } from "../model/types";
+import React, { useRef } from "react";
+import { Direction, Tile } from "../model/types";
 import cn from "clsx";
 
 type TileView = {
@@ -115,15 +115,6 @@ const tileVariants: Record<string, TargetAndTransition> = {
       duration: ANIMATION_DURATIONS.select,
     },
   },
-  selected: {
-    y: 0,
-    opacity: 1,
-    scale: 0.9,
-    transition: {
-      type: "spring",
-      duration: ANIMATION_DURATIONS.select,
-    },
-  },
   exit: {
     y: 0,
     scale: 2.5,
@@ -137,39 +128,45 @@ const tileVariants: Record<string, TargetAndTransition> = {
 
 type TileComponentProps = {
   tile: Tile;
-  isSelected?: boolean;
-  onSelect?: () => void;
   className?: string;
+  availableDirections?: Direction[];
+  onSwipe?: (direction: Direction) => void;
 };
 
 export const TileComponent = ({
   tile,
-  isSelected = false,
-  onSelect,
+  onSwipe,
+  availableDirections = [],
   className,
 }: TileComponentProps) => {
   const tileView = tileTypeToView[tile.type];
+  const isPanHandlerEnabled = useRef(true);
 
-  // const onPan = (event: unknown, info: PanInfo) => {
-  //   const x = info.offset.x;
-  //   const y = info.offset.y;
+  const onPan = (event: unknown, info: PanInfo) => {
+    if (!isPanHandlerEnabled.current) {
+      return;
+    }
 
-  //   let direction: Direction | null = null;
-  //   if (Math.abs(x) > Math.abs(y)) {
-  //     direction = x > 0 ? "right" : "left";
-  //   } else {
-  //     direction = y > 0 ? "down" : "up";
-  //   }
+    const x = info.offset.x;
+    const y = info.offset.y;
 
-  //   const movement = Math.max(Math.abs(x), Math.abs(y));
-  //   const threshold = 5;
+    let direction: Direction | null = null;
+    if (Math.abs(x) > Math.abs(y)) {
+      direction = x > 0 ? "right" : "left";
+    } else {
+      direction = y > 0 ? "down" : "up";
+    }
 
-  //   if (movement > threshold) {
-  //     if (availableDirections.includes(direction)) {
-  //       onSwipe(direction);
-  //     }
-  //   }
-  // };
+    isPanHandlerEnabled.current = false;
+
+    if (availableDirections.includes(direction)) {
+      onSwipe?.(direction);
+    }
+  };
+
+  const onPanEnd = () => {
+    isPanHandlerEnabled.current = true;
+  };
 
   return (
     <motion.div
@@ -183,9 +180,10 @@ export const TileComponent = ({
         duration: ANIMATION_DURATIONS.layout,
       }}
       initial="initial"
-      animate={tile.isRemoved ? "exit" : isSelected ? "selected" : "idle"}
+      animate={tile.isRemoved ? "exit" : "idle"}
       variants={tileVariants}
-      onClick={onSelect}
+      onPan={onPan}
+      onPanEnd={onPanEnd}
     >
       {tileView.content}
     </motion.div>

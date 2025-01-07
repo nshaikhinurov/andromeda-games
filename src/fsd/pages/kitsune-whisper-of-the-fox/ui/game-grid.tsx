@@ -1,16 +1,8 @@
-import { useCallback, useMemo, useState } from "react";
-import { useGameStore } from "../model/grid-controller";
-import { Tile } from "../model/types";
-import { TileComponent } from "./tile";
+import { useCallback, useMemo } from "react";
 import { useShallow } from "zustand/shallow";
-
-type TileSelection = {
-  tile: Tile;
-  position: {
-    rowIndex: number;
-    colIndex: number;
-  };
-};
+import { useGameStore } from "../model/grid-controller";
+import { Direction, Tile } from "../model/types";
+import { TileComponent } from "./tile";
 
 export const GameGridComponent = () => {
   const { grid, moveTile, processMatches } = useGameStore(
@@ -21,52 +13,6 @@ export const GameGridComponent = () => {
     }))
   );
 
-  const [tileSelections, setTileSelections] = useState<TileSelection[]>([]);
-
-  // const handleSwipe = (
-
-  //   firstTile: Tile,
-  //   direction: Direction,
-  //   rowIndex: number,
-  //   colIndex: number
-  // ) => {
-  //   console.log(`Swipe ${direction} on tile ${firstTile.id}`);
-
-  //   let secondTile: Tile | null = null;
-  //   switch (direction) {
-  //     case "up":
-  //       secondTile = grid[rowIndex - 1][colIndex];
-  //       break;
-  //     case "down":
-  //       secondTile = grid[rowIndex + 1][colIndex];
-  //       break;
-  //     case "left":
-  //       secondTile = grid[rowIndex][colIndex - 1];
-  //       break;
-  //     case "right":
-  //       secondTile = grid[rowIndex][colIndex + 1];
-  //       break;
-  //     default:
-  //       throw new Error("Invalid direction");
-  //   }
-
-  //   const newGrid = grid.map((row) =>
-  //     row.map((tile) => {
-  //       if (tile.id === firstTile.id) {
-  //         return secondTile;
-  //       }
-
-  //       if (tile.id === secondTile.id) {
-  //         return firstTile;
-  //       }
-
-  //       return tile;
-  //     })
-  //   );
-
-  //   setGrid(newGrid);
-  // };
-
   const handleSwap = useCallback(
     async (firstTile: Tile, secondTile: Tile) => {
       await moveTile(firstTile, secondTile);
@@ -75,61 +21,70 @@ export const GameGridComponent = () => {
     [moveTile, processMatches]
   );
 
-  const handleSelect = useCallback(
-    (tile: Tile, rowIndex: number, colIndex: number) => {
-      const isSelectionEmpty = tileSelections.length === 0;
+  const handleSwipe = useCallback(
+    (tile: Tile, direction: Direction) => {
+      const { rowIndex, colIndex } = grid.reduce(
+        (acc, row, rowIndex) => {
+          const colIndex = row.findIndex((t) => t.id === tile.id);
+          if (colIndex !== -1) {
+            return { rowIndex, colIndex };
+          }
 
-      if (isSelectionEmpty) {
-        setTileSelections([
-          {
-            tile,
-            position: { rowIndex, colIndex },
-          },
-        ]);
-        return;
+          return acc;
+        },
+        { rowIndex: -1, colIndex: -1 }
+      );
+
+      if (rowIndex === -1 || colIndex === -1) {
+        throw new Error("Tile not found");
       }
 
-      const [firstSelection] = tileSelections;
-      const isSameTile = firstSelection.tile.id === tile.id;
-
-      if (isSameTile) {
-        setTileSelections([]);
-        return;
+      let secondTile: Tile | null = null;
+      switch (direction) {
+        case "up":
+          secondTile = grid[rowIndex - 1][colIndex];
+          break;
+        case "down":
+          secondTile = grid[rowIndex + 1][colIndex];
+          break;
+        case "left":
+          secondTile = grid[rowIndex][colIndex - 1];
+          break;
+        case "right":
+          secondTile = grid[rowIndex][colIndex + 1];
+          break;
+        default:
+          throw new Error("Invalid direction");
       }
 
-      const isAdjacentTile =
-        Math.abs(firstSelection.position.rowIndex - rowIndex) +
-          Math.abs(firstSelection.position.colIndex - colIndex) ===
-        1;
-
-      if (!isAdjacentTile) {
-        setTileSelections([
-          {
-            tile,
-            position: { rowIndex, colIndex },
-          },
-        ]);
-        return;
-      }
-
-      setTileSelections([]);
-      handleSwap(tile, firstSelection.tile);
+      handleSwap(tile, secondTile);
     },
-    [handleSwap, tileSelections]
+    [grid, handleSwap]
   );
 
   const tiles = useMemo(() => {
     const renderTile = (tile: Tile, rowIndex: number, colIndex: number) => {
-      const isSelected = tileSelections.some(
-        (selection) => selection.tile.id === tile.id
-      );
+      const availableDirections: Direction[] = [];
+
+      if (rowIndex > 0) {
+        availableDirections.push("up");
+      }
+      if (rowIndex < grid.length - 1) {
+        availableDirections.push("down");
+      }
+      if (colIndex > 0) {
+        availableDirections.push("left");
+      }
+      if (colIndex < grid[rowIndex].length - 1) {
+        availableDirections.push("right");
+      }
 
       return (
         <TileComponent
           key={tile.id}
           tile={tile}
-          isSelected={isSelected}
-          onSelect={() => handleSelect(tile, rowIndex, colIndex)}
+          availableDirections={availableDirections}
+          onSwipe={(direction) => handleSwipe(tile, direction)}
         />
       );
     };
@@ -137,7 +92,7 @@ export const GameGridComponent = () => {
     return grid.flatMap((row, rowIndex) =>
       row.map((tile, colIndex) => renderTile(tile, rowIndex, colIndex))
     );
-  }, [grid, handleSelect, tileSelections]);
+  }, [grid, handleSwipe]);
 
   return (
     tiles.length > 0 && (
