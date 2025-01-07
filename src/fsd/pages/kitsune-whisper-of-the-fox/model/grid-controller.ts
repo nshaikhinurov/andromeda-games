@@ -24,8 +24,15 @@ export const useGameStore = create<GameStore>()((set, get) => ({
         tile.id === from.id ? { ...to } : tile.id === to.id ? { ...from } : tile
       )
     );
+
     set({ grid: newGrid });
     await sleep(ANIMATION_DURATIONS.layout);
+
+    const matches = findMatches(newGrid);
+    if (matches.length === 0) {
+      set({ grid: grid });
+      await sleep(ANIMATION_DURATIONS.layout);
+    }
   },
 
   processMatches: async () => {

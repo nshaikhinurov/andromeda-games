@@ -96,7 +96,7 @@ export const GameGridComponent = () => {
 
   return (
     tiles.length > 0 && (
-      <div className="grid grid-rows-8 grid-cols-8 border-8 border-slate-500 bg-slate-700 rounded-lg p-2 gap-2">
+      <div className="grid grid-rows-8 grid-cols-8 border-8 border-slate-500 bg-slate-700 rounded-lg p-2">
         {tiles}
       </div>
     )
