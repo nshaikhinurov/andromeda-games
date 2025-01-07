@@ -10,6 +10,7 @@ import sakura from "public/kitsune/sakura.svg";
 import white from "public/kitsune/white.svg";
 import React from "react";
 import { Tile } from "../model/types";
+import cn from "clsx";
 
 type TileView = {
   type: Tile["type"];
@@ -24,7 +25,7 @@ const tileTypeToView: Record<Tile["type"], TileView> = {
         unoptimized
         alt="white"
         src={white}
-        height={64}
+        fill
         className="pointer-events-none"
       />
     ),
@@ -36,7 +37,7 @@ const tileTypeToView: Record<Tile["type"], TileView> = {
         unoptimized
         alt="red"
         src={red}
-        height={64}
+        fill
         className="pointer-events-none"
       />
     ),
@@ -48,7 +49,7 @@ const tileTypeToView: Record<Tile["type"], TileView> = {
         unoptimized
         alt="dark"
         src={dark}
-        height={64}
+        fill
         className="pointer-events-none"
       />
     ),
@@ -60,7 +61,7 @@ const tileTypeToView: Record<Tile["type"], TileView> = {
         unoptimized
         alt="sakura"
         src={sakura}
-        height={64}
+        fill
         className="pointer-events-none"
       />
     ),
@@ -72,7 +73,7 @@ const tileTypeToView: Record<Tile["type"], TileView> = {
         unoptimized
         alt="energy"
         src={energy}
-        height={64}
+        fill
         className="pointer-events-none"
       />
     ),
@@ -84,17 +85,11 @@ const tileTypeToView: Record<Tile["type"], TileView> = {
         unoptimized
         alt="chaos"
         src={chaos}
-        height={64}
+        fill
         className="pointer-events-none"
       />
     ),
   },
-};
-
-type TileComponentProps = {
-  tile: Tile;
-  isSelected?: boolean;
-  onSelect?: () => void;
 };
 
 const timeMultiplier = 1;
@@ -140,10 +135,18 @@ const tileVariants: Record<string, TargetAndTransition> = {
   },
 };
 
+type TileComponentProps = {
+  tile: Tile;
+  isSelected?: boolean;
+  onSelect?: () => void;
+  className?: string;
+};
+
 export const TileComponent = ({
   tile,
   isSelected = false,
   onSelect,
+  className,
 }: TileComponentProps) => {
   const tileView = tileTypeToView[tile.type];
 
@@ -170,7 +173,10 @@ export const TileComponent = ({
 
   return (
     <motion.div
-      className={`select-none w-16 h-16 overflow-hidden flex place-content-center cursor-pointer`}
+      className={cn(
+        `select-none w-16 h-16 overflow-hidden flex place-content-center cursor-pointer relative`,
+        className
+      )}
       layout
       transition={{
         type: "spring",

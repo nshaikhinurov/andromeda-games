@@ -11,7 +11,7 @@ export default function Layout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="min-h-screen min-w-screen flex-1 flex flex-col items-center justify-center relative z-10 bg-slate-800">
+    <main className="min-h-screen min-w-screen overflow-hidden flex-1 flex flex-col items-center justify-center relative z-10 bg-slate-800">
       {children}
     </main>
   );

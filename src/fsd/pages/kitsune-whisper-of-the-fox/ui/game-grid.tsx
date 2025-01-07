@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import { generateInitialGrid, useGameStore } from "../model/grid-controller";
+import { useCallback, useMemo, useState } from "react";
+import { useGameStore } from "../model/grid-controller";
 import { Tile } from "../model/types";
 import { TileComponent } from "./tile";
-import { LoadingScreen } from "./loading-screen";
+import { useShallow } from "zustand/shallow";
 
 type TileSelection = {
   tile: Tile;
@@ -13,15 +13,15 @@ type TileSelection = {
 };
 
 export const GameGridComponent = () => {
-  const { grid, setGrid, moveTile, processMatches } = useGameStore();
-  const [tileSelections, setTileSelections] = useState<TileSelection[]>([]);
+  const { grid, moveTile, processMatches } = useGameStore(
+    useShallow((state) => ({
+      grid: state.grid,
+      moveTile: state.moveTile,
+      processMatches: state.processMatches,
+    }))
+  );
 
-  // Инициализация начальной сетки
-  useEffect(() => {
-    console.log("Initialize grid");
-    setGrid(generateInitialGrid(8));
-    console.log("Initialized grid");
-  }, [setGrid]);
+  const [tileSelections, setTileSelections] = useState<TileSelection[]>([]);
 
   // const handleSwipe = (
 
@@ -67,52 +67,56 @@ export const GameGridComponent = () => {
   //   setGrid(newGrid);
   // };
 
-  const handleSelect = (tile: Tile, rowIndex: number, colIndex: number) => {
-    const isSelectionEmpty = tileSelections.length === 0;
+  const handleSwap = useCallback(
+    async (firstTile: Tile, secondTile: Tile) => {
+      await moveTile(firstTile, secondTile);
+      await processMatches();
+    },
+    [moveTile, processMatches]
+  );
 
-    if (isSelectionEmpty) {
-      setTileSelections([
-        {
-          tile,
-          position: { rowIndex, colIndex },
-        },
-      ]);
-      return;
-    }
+  const handleSelect = useCallback(
+    (tile: Tile, rowIndex: number, colIndex: number) => {
+      const isSelectionEmpty = tileSelections.length === 0;
 
-    const [firstSelection] = tileSelections;
-    const isSameTile = firstSelection.tile.id === tile.id;
+      if (isSelectionEmpty) {
+        setTileSelections([
+          {
+            tile,
+            position: { rowIndex, colIndex },
+          },
+        ]);
+        return;
+      }
 
-    if (isSameTile) {
+      const [firstSelection] = tileSelections;
+      const isSameTile = firstSelection.tile.id === tile.id;
+
+      if (isSameTile) {
+        setTileSelections([]);
+        return;
+      }
+
+      const isAdjacentTile =
+        Math.abs(firstSelection.position.rowIndex - rowIndex) +
+          Math.abs(firstSelection.position.colIndex - colIndex) ===
+        1;
+
+      if (!isAdjacentTile) {
+        setTileSelections([
+          {
+            tile,
+            position: { rowIndex, colIndex },
+          },
+        ]);
+        return;
+      }
+
       setTileSelections([]);
-      return;
-    }
-
-    const isAdjacentTile =
-      Math.abs(firstSelection.position.rowIndex - rowIndex) +
-        Math.abs(firstSelection.position.colIndex - colIndex) ===
-      1;
-
-    if (!isAdjacentTile) {
-      setTileSelections([
-        {
-          tile,
-          position: { rowIndex, colIndex },
-        },
-      ]);
-      return;
-    }
-
-    setTileSelections([]);
-    handleSwap(tile, firstSelection.tile);
-  };
-
-  const handleSwap = async (firstTile: Tile, secondTile: Tile) => {
-    await moveTile(firstTile, secondTile);
-    await processMatches();
-  };
-
-  let a = 4;
+      handleSwap(tile, firstSelection.tile);
+    },
+    [handleSwap, tileSelections]
+  );
 
   const tiles = useMemo(() => {
     const renderTile = (tile: Tile, rowIndex: number, colIndex: number) => {
@@ -133,13 +137,13 @@ export const GameGridComponent = () => {
     return grid.flatMap((row, rowIndex) =>
       row.map((tile, colIndex) => renderTile(tile, rowIndex, colIndex))
     );
-  }, []);
+  }, [grid, handleSelect, tileSelections]);
 
-  return tiles.length > 0 ? (
-    <div className="grid grid-rows-8 grid-cols-8 border-8 border-slate-500 bg-slate-700 rounded-lg p-2 gap-2">
-      {tiles}
-    </div>
-  ) : (
-    <LoadingScreen />
+  return (
+    tiles.length > 0 && (
+      <div className="grid grid-rows-8 grid-cols-8 border-8 border-slate-500 bg-slate-700 rounded-lg p-2 gap-2">
+        {tiles}
+      </div>
+    )
   );
 };

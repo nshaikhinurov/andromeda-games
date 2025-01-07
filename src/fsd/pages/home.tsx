@@ -7,10 +7,6 @@ import { Button } from "~/fsd/shared/ui/button";
 export function HomePage() {
   const router = useRouter();
 
-  const handleStart = () => {
-    router.push("/game");
-  };
-
   return (
     <div className="text-center p-4">
       <motion.h1
