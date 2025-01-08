@@ -11,6 +11,7 @@ export type Tile = {
   id: string;
   type: (typeof TILE_TYPES)[number];
   isRemoved: boolean;
+  hasGem: boolean;
 };
 
 export type GameGrid = Tile[][];

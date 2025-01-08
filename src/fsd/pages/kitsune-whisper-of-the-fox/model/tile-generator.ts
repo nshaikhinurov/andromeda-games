@@ -7,4 +7,5 @@ export const generateRandomTile = (): Tile => ({
   id: String(id++),
   type: pickRandom(TILE_TYPES),
   isRemoved: false,
+  hasGem: Math.random() < 1 / 3,
 });

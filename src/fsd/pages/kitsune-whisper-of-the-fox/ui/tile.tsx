@@ -171,7 +171,7 @@ export const TileComponent = ({
   return (
     <motion.div
       className={cn(
-        `select-none w-16 h-16 overflow-hidden flex place-content-center cursor-pointer relative`,
+        `select-none w-16 h-16 overflow-hidden flex items-center justify-center cursor-pointer relative`,
         className
       )}
       layout
@@ -186,6 +186,9 @@ export const TileComponent = ({
       onPanEnd={onPanEnd}
     >
       {tileView.content}
+      {tile.hasGem && (
+        <div className="w-2 h-2 bg-white border-indigo-700 border-2 rounded-full z-10" />
+      )}
     </motion.div>
   );
 };

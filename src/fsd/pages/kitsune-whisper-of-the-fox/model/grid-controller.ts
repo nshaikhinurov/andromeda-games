@@ -7,6 +7,7 @@ import { create } from "zustand";
 type GameStore = {
   grid: GameGrid;
   score: number;
+  gemsCollected: number;
   setGrid: (grid: GameGrid) => void;
   moveTile: (from: Tile, to: Tile) => void;
   processMatches: () => Promise<void>;
@@ -15,6 +16,7 @@ type GameStore = {
 export const useGameStore = create<GameStore>()((set, get) => ({
   grid: [],
   score: 0,
+  gemsCollected: 0,
   setGrid: (grid) => set({ grid }),
 
   moveTile: async (from, to) => {
@@ -42,7 +44,11 @@ export const useGameStore = create<GameStore>()((set, get) => ({
       if (matches.length === 0) break;
 
       // Увеличиваем счет
-      set((state) => ({ score: state.score + matches.length }));
+      set((state) => ({
+        score: state.score + matches.length,
+        gemsCollected:
+          state.gemsCollected + matches.filter((tile) => tile.hasGem).length,
+      }));
 
       // Удаляем совпадения
       const gridAfterRemoval = removeMatches(matches, grid);

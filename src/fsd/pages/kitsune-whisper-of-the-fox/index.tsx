@@ -14,11 +14,12 @@ const font = Yusei_Magic({
 });
 
 export const KitsuneGamePage = () => {
-  const { isGridInitialized, setGrid, score } = useGameStore(
+  const { isGridInitialized, setGrid, score, gemsCollected } = useGameStore(
     useShallow((state) => ({
       isGridInitialized: state.grid.length > 0,
       setGrid: state.setGrid,
       score: state.score,
+      gemsCollected: state.gemsCollected,
     }))
   );
 
@@ -37,12 +38,22 @@ export const KitsuneGamePage = () => {
       {!isGridInitialized && <LoadingScreen />}
       {isGridInitialized && (
         <>
-          <div className="flex justify-center items-center gap-x-2">
-            <TileComponent
-              tile={{ id: "score", type: "white", isRemoved: false }}
-              className="w-10 h-10"
-            />
-            <span className="text-4xl">{score}</span>
+          <div className="flex justify-between w-full">
+            <div className="flex justify-center items-center gap-x-2">
+              <TileComponent
+                tile={{
+                  id: "score",
+                  type: "white",
+                  isRemoved: false,
+                  hasGem: false,
+                }}
+                className="w-10 h-10"
+              />
+              <span className="text-4xl">{score}</span>
+            </div>
+            <div>
+              <span className="text-4xl">Gems: {gemsCollected}</span>
+            </div>
           </div>
           <GameGridComponent />
         </>
