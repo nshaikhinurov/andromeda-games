@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Andromeda Games
 
-## Getting Started
+Andromeda Games is a personal project showcasing a collection of web-based games, highlighting my expertise as a senior frontend developer. The project aims to deliver engaging and interactive gaming experiences, including card games, match-three puzzles, and escape room quests with cryptography-based challenges.
 
-First, run the development server:
+## Technologies Used
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
+- **Framework:** Next.js
+- **Frontend:** React, TypeScript, Framer Motion, Three.js
+- **Architecture:** Monorepo managed with Turborepo, following the Feature Sliced Design (FSD) methodology
+- **Package Manager:** pnpm
+- **Deployment:** Planned deployment on Vercel
+
+## Installation & Running Locally
+
+To run the project locally, follow these steps:
+
+```sh
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- A variety of web-based games, including:
+  - Card games
+  - Match-three puzzles
+  - Escape room quests introducing players to basic cryptography and ciphers
+- Smooth animations powered by Framer Motion
+- 3D visual elements utilizing Three.js
+- Modular and scalable architecture using Feature Sliced Design
+- Efficient monorepo structure with Turborepo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Future Plans
 
-## Learn More
+- Deploy the project on Vercel
+- Expand the game library with more interactive experiences
+- Enhance the escape room quests with more complex cryptographic challenges
 
-To learn more about Next.js, take a look at the following resources:
+## Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Currently, this is a personal project, but future contributions may be considered. Stay tuned!
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is under [LICENSE] (to be defined).
