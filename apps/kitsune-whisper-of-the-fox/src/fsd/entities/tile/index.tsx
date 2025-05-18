@@ -55,7 +55,6 @@ export const TileComponent = ({
   handlePan,
   className,
 }: TileComponentProps) => {
-  console.log("TileComponent rendered", tile);
   const isPanning = useRef(false);
 
   const onPan = (event: unknown, info: PanInfo) => {
