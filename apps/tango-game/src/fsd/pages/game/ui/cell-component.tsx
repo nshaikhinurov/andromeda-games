@@ -2,12 +2,7 @@ import cn from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
-import {
-  currentCellSelector,
-  gameSlice,
-  useAppDispatch,
-  useAppSelector,
-} from "~/fsd/app/store";
+import { useAppStore, useCurrentCell } from "~/fsd/app/store";
 import { CellValue } from "../model";
 
 export const CellComponent = ({
@@ -18,11 +13,11 @@ export const CellComponent = ({
   initialValue: CellValue;
 }) => {
   const [isLocked] = useState(initialValue !== null);
-  const dispatch = useAppDispatch();
-  const cellValue = useAppSelector((state) => currentCellSelector(state, id));
+  const { cellClicked } = useAppStore();
+  const cellValue = useCurrentCell(id);
 
   const handleClick = () => {
-    dispatch(gameSlice.actions.cellClicked({ cellId: id }));
+    cellClicked(id);
   };
 
   return (

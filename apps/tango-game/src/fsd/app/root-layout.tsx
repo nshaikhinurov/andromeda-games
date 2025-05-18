@@ -2,8 +2,6 @@
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Provider } from "react-redux";
-import { store } from "./store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,11 +32,9 @@ export const RootLayout = ({
       <body
         className={`${geistSans.variable} ${geistMono.variable} overflow-y-scroll antialiased`}
       >
-        <Provider store={store}>
-          <div className="flex min-h-screen flex-col items-center bg-stone-200 sm:p-8">
-            {children}
-          </div>
-        </Provider>
+        <div className="flex min-h-screen flex-col items-center bg-stone-200 sm:p-8">
+          {children}
+        </div>
       </body>
     </html>
   );

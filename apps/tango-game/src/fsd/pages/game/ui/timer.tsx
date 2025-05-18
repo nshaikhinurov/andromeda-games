@@ -1,12 +1,16 @@
 import React, { useEffect } from "react";
 import { FaRegClock } from "react-icons/fa6";
-import { shouldDisplayTimerSelector, useAppSelector } from "~/fsd/app/store";
+import {
+  useGameFinishedAt,
+  useGameStartedAt,
+  useShouldDisplayTimer,
+} from "~/fsd/app/store";
 import { formatElapsedTime } from "~/fsd/shared/lib/utils";
 
 export const Timer = () => {
-  const gameStartedAt = useAppSelector((state) => state.gameStartedAt);
-  const gameFinishedAt = useAppSelector((state) => state.gameFinishedAt);
-  const shouldDisplayTimer = useAppSelector(shouldDisplayTimerSelector);
+  const gameStartedAt = useGameStartedAt();
+  const gameFinishedAt = useGameFinishedAt();
+  const shouldDisplayTimer = useShouldDisplayTimer();
   const [elapsedTime, setElapsedTime] = React.useState(0);
   const timerString = formatElapsedTime(elapsedTime);
 

@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { currentBoardSelector, useAppSelector } from "~/fsd/app/store";
+import { useCurrentBoard } from "~/fsd/app/store";
 import { CellComponent } from "./cell-component";
 
 export const Board = () => {
-  const currentBoard = useAppSelector(currentBoardSelector);
+  const currentBoard = useCurrentBoard();
 
   const cells = useMemo(() => {
     return (currentBoard || []).flat();

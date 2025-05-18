@@ -1,6 +1,5 @@
-import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { produce } from "immer";
-import { useDispatch, useSelector, useStore } from "react-redux";
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 import {
   Board,
   generateBoard,
@@ -20,6 +19,12 @@ export type AppState = {
     shouldDisplayTimer: boolean;
     shouldDisplayErrors: boolean;
   };
+  // Actions
+  cellClicked: (cellId: number) => void;
+  cellRestored: () => void;
+  boardCleared: () => void;
+  boardSolved: () => void;
+  gameRestarted: () => void;
 };
 
 const generateInitialState = () => {
@@ -36,110 +41,120 @@ const generateInitialState = () => {
       shouldDisplayTimer: true,
       shouldDisplayErrors: true,
     },
-  } satisfies AppState;
+  };
 };
 
-export const gameSlice = createSlice({
-  name: "game",
-  initialState: generateInitialState(),
-  selectors: {
-    shouldDisplayTimerSelector: (state: AppState) => {
-      return state.settings.shouldDisplayTimer;
-    },
-  },
-  reducers: {
-    cellClicked: (state, action: PayloadAction<{ cellId: number }>) => {
-      if (state.gameFinishedAt) {
-        return;
-      }
+export const useAppStore = create<AppState>()(
+  immer((set) => ({
+    ...generateInitialState(),
 
-      const currentBoardId = state.boardHistory.ids.at(-1);
-      const currentBoard = currentBoardSelector(state);
+    cellClicked: (cellId: number) => {
+      set((state) => {
+        if (state.gameFinishedAt) {
+          return;
+        }
 
-      if (!currentBoard || currentBoardId === undefined) {
-        return;
-      }
+        const currentBoardId = state.boardHistory.ids.at(-1);
+        const currentBoard = currentBoardSelector(state);
 
-      const row = Math.floor(action.payload.cellId / currentBoard.length);
-      const col = action.payload.cellId % currentBoard.length;
+        if (!currentBoard || currentBoardId === undefined) {
+          return;
+        }
 
-      const clickedCellValue = currentBoard[row][col];
-      const nextCellValue = getNextValue(clickedCellValue);
+        const row = Math.floor(cellId / currentBoard.length);
+        const col = cellId % currentBoard.length;
 
-      const newBoard = produce(currentBoard, (draft) => {
-        draft[row][col] = nextCellValue;
+        const clickedCellValue = currentBoard[row][col];
+        const nextCellValue = getNextValue(clickedCellValue);
+
+        // With immer middleware, we can mutate the draft state directly
+        state.boardHistory.ids.push(currentBoardId + 1);
+        state.boardHistory.entities[currentBoardId + 1] = [...currentBoard];
+        state.boardHistory.entities[currentBoardId + 1]![row][col] =
+          nextCellValue;
+
+        const newBoard = state.boardHistory.entities[currentBoardId + 1]!;
+
+        if (
+          newBoard.flat().every((cell) => cell !== null) &&
+          isValidSolution(newBoard)
+        ) {
+          state.gameFinishedAt = Date.now();
+        }
       });
-
-      state.boardHistory.ids.push(currentBoardId + 1);
-      state.boardHistory.entities[currentBoardId + 1] = newBoard;
-
-      if (
-        newBoard.flat().every((cell) => cell !== null) &&
-        isValidSolution(newBoard)
-      ) {
-        state.gameFinishedAt = Date.now();
-      }
     },
-    cellRestored: (state) => {
-      if (state.gameFinishedAt) {
-        return;
-      }
 
-      const currentBoardId = state.boardHistory.ids.at(-1);
+    cellRestored: () => {
+      set((state) => {
+        if (state.gameFinishedAt) {
+          return;
+        }
 
-      if (currentBoardId !== undefined && currentBoardId > 1) {
-        state.boardHistory.entities[currentBoardId] = undefined;
-        state.boardHistory.ids.pop();
-      }
+        const currentBoardId = state.boardHistory.ids.at(-1);
+
+        if (currentBoardId !== undefined && currentBoardId > 1) {
+          state.boardHistory.entities[currentBoardId] = undefined;
+          state.boardHistory.ids.pop();
+        }
+      });
     },
-    boardCleared: (state) => {
-      if (state.gameFinishedAt) {
-        return;
-      }
 
-      state.boardHistory.ids = [1];
-      state.boardHistory.entities = {
-        1: state.boardHistory.entities[1],
-      };
+    boardCleared: () => {
+      set((state) => {
+        if (state.gameFinishedAt) {
+          return;
+        }
+
+        state.boardHistory.ids = [1];
+        state.boardHistory.entities = {
+          1: state.boardHistory.entities[1],
+        };
+      });
     },
-    boardSolved: (state) => {
-      if (state.gameFinishedAt) {
-        return;
-      }
 
-      const currentBoardId = state.boardHistory.ids.at(-1);
-      const initialBoard = state.boardHistory.entities[1];
+    boardSolved: () => {
+      set((state) => {
+        if (state.gameFinishedAt) {
+          return;
+        }
 
-      if (!initialBoard || currentBoardId === undefined) {
-        return;
-      }
+        const currentBoardId = state.boardHistory.ids.at(-1);
+        const initialBoard = state.boardHistory.entities[1];
 
-      const [solvedBoard] = solve(initialBoard);
-      state.boardHistory.ids.push(currentBoardId + 1);
-      state.boardHistory.entities[currentBoardId + 1] = solvedBoard;
+        if (!initialBoard || currentBoardId === undefined) {
+          return;
+        }
 
-      if (
-        solvedBoard.flat().every((cell) => cell !== null) &&
-        isValidSolution(solvedBoard)
-      ) {
-        state.gameFinishedAt = Date.now();
-      }
+        const [solvedBoard] = solve(initialBoard);
+        state.boardHistory.ids.push(currentBoardId + 1);
+        state.boardHistory.entities[currentBoardId + 1] = solvedBoard;
+
+        if (
+          solvedBoard.flat().every((cell) => cell !== null) &&
+          isValidSolution(solvedBoard)
+        ) {
+          state.gameFinishedAt = Date.now();
+        }
+      });
     },
+
     gameRestarted: () => {
-      return generateInitialState();
+      set(generateInitialState());
     },
-  },
-});
+  })),
+);
 
-export const currentBoardSelector = (state: AppState) => {
+// Selectors
+const currentBoardSelector = (state: AppState) => {
   const boardId = state.boardHistory.ids.at(-1);
 
   if (boardId) {
     return state.boardHistory.entities[boardId];
   }
+  return undefined;
 };
 
-export const currentCellSelector = (state: AppState, cellId: number) => {
+const currentCellSelector = (state: AppState, cellId: number) => {
   const currentBoard = currentBoardSelector(state);
   if (!currentBoard) return null;
   const row = Math.floor(cellId / currentBoard.length);
@@ -147,16 +162,14 @@ export const currentCellSelector = (state: AppState, cellId: number) => {
   return currentBoard[row][col];
 };
 
-export const shouldDisplayTimerSelector = (state: AppState) => {
-  return state.settings.shouldDisplayTimer;
-};
-
-export const store = configureStore({
-  reducer: gameSlice.reducer,
-});
-
-type AppStore = typeof store;
-type AppDispatch = AppStore["dispatch"];
-export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
-export const useAppSelector = useSelector.withTypes<AppState>();
-export const useAppStore = useStore.withTypes<AppStore>();
+// Helper hooks to select specific parts of the state
+export const useCurrentBoard = () => useAppStore(currentBoardSelector);
+export const useCurrentCell = (cellId: number) =>
+  useAppStore((state) => currentCellSelector(state, cellId));
+export const useShouldDisplayTimer = () =>
+  useAppStore((state) => state.settings.shouldDisplayTimer);
+export const useGameStartedAt = () =>
+  useAppStore((state) => state.gameStartedAt);
+export const useGameFinishedAt = () =>
+  useAppStore((state) => state.gameFinishedAt);
+export const useSettings = () => useAppStore((state) => state.settings);

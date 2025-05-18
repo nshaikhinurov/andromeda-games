@@ -1,64 +1,63 @@
 "use client";
 
+import { pickRandom } from "@andromeda-games/utils";
 import {
+  FaArrowLeft,
   FaBolt,
+  FaBrain,
   FaBroom,
   FaLightbulb,
-  FaRotateLeft,
-  FaBrain,
-  FaShuffle,
+  FaRotateRight,
 } from "react-icons/fa6";
 import {
-  gameSlice,
-  shouldDisplayTimerSelector,
-  useAppDispatch,
-  useAppSelector,
+  useAppStore,
+  useGameFinishedAt,
+  useGameStartedAt,
+  useShouldDisplayTimer,
 } from "~/fsd/app/store";
 import { Button } from "~/fsd/shared/ui/button";
 import { Board } from "./ui/board";
+import { congratulations } from "./ui/congratulations";
 import { GameInstructions } from "./ui/game-instructions";
-import { GameTitle } from "./ui/header";
+import { Header } from "./ui/header";
 import { SettingsMenu } from "./ui/settings-menu";
 import { Timer } from "./ui/timer";
-import { pickRandom } from "@andromeda-games/utils";
-import { congratulations } from "./ui/congratulations";
 
 export const GamePage = () => {
-  const gameStartedAt = useAppSelector((state) => state.gameStartedAt);
-  const gameStatus = useAppSelector((state) =>
-    state.gameFinishedAt > 0 ? "finished" : "playing",
-  );
+  const gameStartedAt = useGameStartedAt();
+  const gameFinishedAt = useGameFinishedAt();
+  const gameStatus = gameFinishedAt > 0 ? "finished" : "playing";
 
-  const shouldDisplayTimer = useAppSelector(shouldDisplayTimerSelector);
-  const dispatch = useAppDispatch();
-  const isUndoButtonDisabled = useAppSelector(
+  const shouldDisplayTimer = useShouldDisplayTimer();
+  const { cellRestored, boardCleared, gameRestarted, boardSolved } =
+    useAppStore();
+
+  const isUndoButtonDisabled = useAppStore(
     (state) => state.boardHistory.ids.length < 2,
   );
-
   const handleClearClick = () => {
-    dispatch(gameSlice.actions.boardCleared());
+    boardCleared();
   };
 
   const handleUndoClick = () => {
-    dispatch(gameSlice.actions.cellRestored());
+    cellRestored();
   };
 
   const handleRestartClick = () => {
-    dispatch(gameSlice.actions.gameRestarted());
+    gameRestarted();
   };
 
   const handleSolveClick = () => {
-    dispatch(gameSlice.actions.boardSolved());
+    boardSolved();
   };
 
   const randomCongratulation = pickRandom(congratulations);
 
   return (
     <main className="flex w-full max-w-[400px] flex-col items-stretch gap-4 rounded-md bg-stone-100 p-4 text-black sm:w-[452px]">
-      <div className="relative">
-        <GameTitle />
-        <SettingsMenu triggerClassName="absolute top-0 right-0" />
-      </div>
+      <Header
+        actionsSlot={<SettingsMenu triggerClassName="absolute top-0 right-0" />}
+      />
 
       <>
         <div className="grid grid-cols-3 grid-rows-1 items-center justify-center gap-2 font-semibold">
@@ -67,7 +66,7 @@ export const GamePage = () => {
             {shouldDisplayTimer && <Timer key={gameStartedAt} />}
           </div>
           <Button onClick={handleRestartClick}>
-            <FaShuffle /> Restart
+            <FaRotateRight /> Restart
           </Button>
         </div>
 
@@ -76,7 +75,7 @@ export const GamePage = () => {
         {gameStatus === "playing" && (
           <div className="grid grid-cols-2 gap-2">
             <Button onClick={handleUndoClick} disabled={isUndoButtonDisabled}>
-              <FaRotateLeft />
+              <FaArrowLeft />
               Undo
             </Button>
             <Button>
@@ -96,7 +95,7 @@ export const GamePage = () => {
         <div className="flex flex-col items-center justify-center gap-4 text-center">
           <h2 className="text-2xl font-bold">{randomCongratulation.title}</h2>
           <p className="text-lg">{randomCongratulation.subtitle}</p>
-          <Button onClick={() => dispatch(gameSlice.actions.gameRestarted())}>
+          <Button onClick={gameRestarted}>
             <FaBrain /> Play Again
           </Button>
         </div>
