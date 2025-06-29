@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useCurrentBoard } from "~/fsd/app/store";
+import { useCurrentBoard } from "~/fsd/app/stores";
 import { CellComponent } from "./cell-component";
 
 export const Board = () => {

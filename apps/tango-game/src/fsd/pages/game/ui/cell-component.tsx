@@ -2,7 +2,7 @@ import cn from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
-import { useAppStore, useCurrentCell } from "~/fsd/app/store";
+import { useCell, useGameStateStore } from "~/fsd/app/stores";
 import { CellValue } from "../model";
 
 export const CellComponent = ({
@@ -13,8 +13,8 @@ export const CellComponent = ({
   initialValue: CellValue;
 }) => {
   const [isLocked] = useState(initialValue !== null);
-  const { cellClicked } = useAppStore();
-  const cellValue = useCurrentCell(id);
+  const { cellClicked } = useGameStateStore();
+  const cellValue = useCell(id);
 
   const handleClick = () => {
     cellClicked(id);

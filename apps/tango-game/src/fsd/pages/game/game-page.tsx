@@ -10,11 +10,13 @@ import {
   FaRotateRight,
 } from "react-icons/fa6";
 import {
-  useAppStore,
+  restartGame,
+  useCanUndo,
   useGameFinishedAt,
   useGameStartedAt,
+  useGameStateStore,
   useShouldDisplayTimer,
-} from "~/fsd/app/store";
+} from "~/fsd/app/stores";
 import { Button } from "~/fsd/shared/ui/button";
 import { Board } from "./ui/board";
 import { congratulations } from "./ui/congratulations";
@@ -29,12 +31,10 @@ export const GamePage = () => {
   const gameStatus = gameFinishedAt > 0 ? "finished" : "playing";
 
   const shouldDisplayTimer = useShouldDisplayTimer();
-  const { cellRestored, boardCleared, gameRestarted, boardSolved } =
-    useAppStore();
+  const canUndo = useCanUndo();
 
-  const isUndoButtonDisabled = useAppStore(
-    (state) => state.boardHistory.ids.length < 2,
-  );
+  const { cellRestored, boardCleared, boardSolved } = useGameStateStore();
+
   const handleClearClick = () => {
     boardCleared();
   };
@@ -44,7 +44,7 @@ export const GamePage = () => {
   };
 
   const handleRestartClick = () => {
-    gameRestarted();
+    restartGame();
   };
 
   const handleSolveClick = () => {
@@ -74,14 +74,14 @@ export const GamePage = () => {
 
         {gameStatus === "playing" && (
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={handleUndoClick} disabled={isUndoButtonDisabled}>
+            <Button onClick={handleUndoClick} disabled={!canUndo}>
               <FaArrowLeft />
               Undo
             </Button>
             <Button>
               <FaLightbulb /> Hint
             </Button>
-            <Button onClick={handleClearClick} disabled={isUndoButtonDisabled}>
+            <Button onClick={handleClearClick} disabled={!canUndo}>
               <FaBroom /> Clear
             </Button>
             <Button onClick={handleSolveClick}>
@@ -95,7 +95,7 @@ export const GamePage = () => {
         <div className="flex flex-col items-center justify-center gap-4 text-center">
           <h2 className="text-2xl font-bold">{randomCongratulation.title}</h2>
           <p className="text-lg">{randomCongratulation.subtitle}</p>
-          <Button onClick={gameRestarted}>
+          <Button onClick={handleRestartClick}>
             <FaBrain /> Play Again
           </Button>
         </div>

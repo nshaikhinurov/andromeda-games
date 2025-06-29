@@ -1,31 +1,22 @@
 import React, { useEffect } from "react";
 import { FaRegClock } from "react-icons/fa6";
-import {
-  useGameFinishedAt,
-  useGameStartedAt,
-  useShouldDisplayTimer,
-} from "~/fsd/app/store";
+import { useGameDuration, useShouldDisplayTimer } from "~/fsd/app/stores";
 import { formatElapsedTime } from "~/fsd/shared/lib/utils";
 
 export const Timer = () => {
-  const gameStartedAt = useGameStartedAt();
-  const gameFinishedAt = useGameFinishedAt();
   const shouldDisplayTimer = useShouldDisplayTimer();
-  const [elapsedTime, setElapsedTime] = React.useState(0);
-  const timerString = formatElapsedTime(elapsedTime);
+  const gameDuration = useGameDuration();
+  const [displayTime, setDisplayTime] = React.useState(gameDuration);
+  const timerString = formatElapsedTime(displayTime);
 
   useEffect(() => {
-    if (gameFinishedAt) {
-      setElapsedTime(gameFinishedAt - gameStartedAt);
-      return;
-    }
-
+    // Update display time every 500ms for smooth timer display
     const interval = setInterval(() => {
-      setElapsedTime(Date.now() - gameStartedAt);
+      setDisplayTime(gameDuration);
     }, 500);
 
     return () => clearInterval(interval);
-  }, [gameStartedAt, gameFinishedAt]);
+  }, [gameDuration]);
 
   return (
     shouldDisplayTimer && (
