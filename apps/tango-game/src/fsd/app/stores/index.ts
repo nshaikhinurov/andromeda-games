@@ -8,9 +8,10 @@ export * from "./settings";
 
 // Create a coordinator function to restart the game
 export const restartGame = () => {
-  const { resetGame } = useGameStateStore.getState();
   const { resetMeta } = useGameMetaStore.getState();
+  const { resetGame } = useGameStateStore.getState();
 
-  resetGame();
+  // Reset meta first to avoid subscription issues
   resetMeta();
+  resetGame();
 };

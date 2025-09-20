@@ -1,7 +1,7 @@
 import cn from "clsx";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCell, useGameStateStore } from "~/fsd/app/stores";
 import { CellValue } from "../model";
 
@@ -13,8 +13,14 @@ export const CellComponent = ({
   initialValue: CellValue;
 }) => {
   const [isLocked] = useState(initialValue !== null);
+  const [isClient, setIsClient] = useState(false);
   const { cellClicked } = useGameStateStore();
   const cellValue = useCell(id);
+
+  // Устанавливаем флаг что мы на клиенте
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleClick = () => {
     cellClicked(id);
@@ -29,17 +35,17 @@ export const CellComponent = ({
           "rounded-tr-[6px]": id === 5,
           "rounded-bl-[6px]": id === 30,
           "rounded-br-[6px]": id === 35,
-          "cursor-not-allowed bg-stone-200": isLocked,
+          "cursor-not-allowed bg-stone-200": isClient && isLocked,
           "cursor-pointer transition hover:bg-stone-100 active:scale-90":
-            !isLocked,
+            isClient && !isLocked,
         },
       )}
       initial={{ opacity: 0, scale: 1 }}
       animate={{ opacity: 1, scale: 1 }}
-      onClick={!isLocked ? handleClick : undefined}
+      onClick={isClient && !isLocked ? handleClick : undefined}
     >
       <AnimatePresence>
-        {cellValue !== null && (
+        {isClient && cellValue !== null && (
           <motion.div
             key={cellValue}
             className="absolute"

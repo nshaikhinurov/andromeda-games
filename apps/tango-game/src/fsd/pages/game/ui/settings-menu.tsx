@@ -1,6 +1,10 @@
 import cn from "clsx";
 import { FaGear, FaListCheck, FaRegClock } from "react-icons/fa6";
-import { useSettingsStore, useShouldDisplayErrors, useShouldDisplayTimer } from "~/fsd/app/stores";
+import {
+  useSettingsStore,
+  useShouldDisplayErrors,
+  useShouldDisplayTimer,
+} from "~/fsd/app/stores";
 import {
   DropdownMenu,
   DropdownMenuContent,

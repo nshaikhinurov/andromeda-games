@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { isGameFinished, useGameStateStore } from "./game-state";
@@ -14,7 +15,7 @@ type GameMetaState = {
 // Create the game meta store
 export const useGameMetaStore = create<GameMetaState>()(
   immer((set) => ({
-    gameStartedAt: Date.now(),
+    gameStartedAt: 0,
     gameFinishedAt: 0,
 
     startGame: () => {
@@ -31,29 +32,37 @@ export const useGameMetaStore = create<GameMetaState>()(
   })),
 );
 
-// Set up subscription on first import
-(function setupSubscription() {
-  let prevFinished = false;
+// Hook to set up game finish detection
+export const useGameFinishSubscription = () => {
+  useEffect(() => {
+    let prevFinished = false;
+    let subscriptionCount = 0;
 
-  useGameStateStore.subscribe((state) => {
-    const finished = isGameFinished(state);
-    const metaState = useGameMetaStore.getState();
+    const unsubscribe = useGameStateStore.subscribe((state) => {
+      subscriptionCount++;
+      const finished = isGameFinished(state);
+      const metaState = useGameMetaStore.getState();
 
-    // Only update when the game transitions to finished state
-    if (finished && !prevFinished && metaState.gameFinishedAt === 0) {
-      metaState.finishGame();
-    }
+      // Debug logging
+      console.log(`Subscription call #${subscriptionCount}:`, {
+        finished,
+        prevFinished,
+        gameFinishedAt: metaState.gameFinishedAt,
+        shouldFinish:
+          finished && !prevFinished && metaState.gameFinishedAt === 0,
+      });
 
-    prevFinished = finished;
-  });
-})();
+      // Only update when the game transitions to finished state
+      if (finished && !prevFinished && metaState.gameFinishedAt === 0) {
+        console.log("Calling finishGame()");
+        metaState.finishGame();
+      }
 
-// Selectors
-export const getGameDuration = (state: GameMetaState) => {
-  if (state.gameFinishedAt > 0) {
-    return state.gameFinishedAt - state.gameStartedAt;
-  }
-  return Date.now() - state.gameStartedAt;
+      prevFinished = finished;
+    });
+
+    return unsubscribe;
+  }, []);
 };
 
 export const isGameActive = (state: GameMetaState) => {
@@ -65,5 +74,4 @@ export const useGameStartedAt = () =>
   useGameMetaStore((state) => state.gameStartedAt);
 export const useGameFinishedAt = () =>
   useGameMetaStore((state) => state.gameFinishedAt);
-export const useGameDuration = () => useGameMetaStore(getGameDuration);
 export const useIsGameActive = () => useGameMetaStore(isGameActive);

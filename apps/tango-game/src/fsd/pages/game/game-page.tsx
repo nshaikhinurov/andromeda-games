@@ -13,6 +13,7 @@ import {
   restartGame,
   useCanUndo,
   useGameFinishedAt,
+  useGameFinishSubscription,
   useGameStartedAt,
   useGameStateStore,
   useShouldDisplayTimer,
@@ -26,9 +27,13 @@ import { SettingsMenu } from "./ui/settings-menu";
 import { Timer } from "./ui/timer";
 
 export const GamePage = () => {
+  // Set up game finish detection
+  useGameFinishSubscription();
+
   const gameStartedAt = useGameStartedAt();
   const gameFinishedAt = useGameFinishedAt();
   const gameStatus = gameFinishedAt > 0 ? "finished" : "playing";
+  console.log("🚀 ~ GamePage ~ GamePage rendered");
 
   const shouldDisplayTimer = useShouldDisplayTimer();
   const canUndo = useCanUndo();
