@@ -7,11 +7,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type React from "react";
 
-const games = [
-  { name: "Game 1", path: "/game1" },
-  { name: "Game 2", path: "/game2" },
-];
-
 export default function HomePage() {
   return (
     <div className="flex h-screen bg-white">
@@ -277,5 +272,3 @@ function FileCard({
     </div>
   );
 }
-
-function FileManager() {}
