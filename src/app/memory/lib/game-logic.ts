@@ -51,33 +51,39 @@ export function createDeck(gridCols: number = 4, gridRows: number = 4): Card[] {
     throw new Error("Общее количество карт должно быть четным");
   }
 
-  const cards: Card[] = [];
-  let cardCount = 0;
-
-  // Создаем пары карт
-  outerLoop: for (const suit of suits) {
+  // Создаем полный набор всех возможных карт
+  const allPossibleCards: { suit: string; rank: string; value: string }[] = [];
+  for (const suit of suits) {
     for (const rank of ranks) {
-      if (cardCount >= pairsNeeded) break outerLoop;
-
-      const cardValue = `${suit}${rank}`;
-
-      // Создаем пару одинаковых карт
-      for (let i = 0; i < 2; i++) {
-        cards.push({
-          id: `${cardValue}-${i}`,
-          suit,
-          rank,
-          isFlipped: false,
-          isMatched: false,
-          value: cardValue,
-        });
-      }
-
-      cardCount++;
+      allPossibleCards.push({
+        suit,
+        rank,
+        value: `${suit}${rank}`,
+      });
     }
   }
 
-  // Перемешиваем карты
+  // Перемешиваем и выбираем случайную половину
+  const shuffledCards = shuffleArray(allPossibleCards);
+  const selectedCards = shuffledCards.slice(0, pairsNeeded);
+
+  // Создаем пары из выбранных карт
+  const cards: Card[] = [];
+  for (const cardTemplate of selectedCards) {
+    // Создаем пару одинаковых карт
+    for (let i = 0; i < 2; i++) {
+      cards.push({
+        id: `${cardTemplate.value}-${i}`,
+        suit: cardTemplate.suit,
+        rank: cardTemplate.rank,
+        isFlipped: false,
+        isMatched: false,
+        value: cardTemplate.value,
+      });
+    }
+  }
+
+  // Перемешиваем финальный набор карт
   return shuffleArray(cards);
 }
 

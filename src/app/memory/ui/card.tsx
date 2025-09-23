@@ -1,4 +1,5 @@
 import { Card as CardType } from "@/app/memory/lib/game-logic";
+import { Club, Diamond, Heart, Spade } from "lucide-react";
 
 interface CardProps {
   card: CardType;
@@ -6,28 +7,11 @@ interface CardProps {
   disabled?: boolean;
 }
 
-/**
- * Компонент отдельной карты с анимацией переворота
- */
 export default function Card({ card, onClick, disabled = false }: CardProps) {
   const handleClick = () => {
     if (!disabled && !card.isFlipped && !card.isMatched) {
       onClick(card.id);
     }
-  };
-
-  /**
-   * Получает цвет масти карты
-   */
-  const getSuitColor = (suit: string): string => {
-    return suit === "♥" || suit === "♦" ? "text-red-600" : "text-black";
-  };
-
-  /**
-   * Получает размер символа ранга
-   */
-  const getRankSize = (rank: string): string => {
-    return rank === "10" ? "text-3xl" : "text-4xl";
   };
 
   return (
@@ -55,10 +39,14 @@ export default function Card({ card, onClick, disabled = false }: CardProps) {
             flex items-center justify-center
           `}
         >
-          <div className="text-white text-2xl font-bold opacity-30">♠♥♣♦</div>
+          <div className="text-white  opacity-30 ">
+            <Spade strokeWidth={3} />
+            <Heart strokeWidth={3} />
+            <Club strokeWidth={3} />
+            <Diamond strokeWidth={3} />
+          </div>
           {/* Узор на рубашке */}
           <div className="absolute inset-2 border border-blue-300 rounded-md opacity-30" />
-          <div className="absolute inset-4 border border-blue-200 rounded-sm opacity-20" />
         </div>
 
         {/* Лицевая сторона карты */}
@@ -66,34 +54,14 @@ export default function Card({ card, onClick, disabled = false }: CardProps) {
           className={`
             absolute inset-0 w-full h-full rounded-lg border-2 border-gray-300 
             shadow-lg backface-hidden rotate-y-180 bg-white
-            flex flex-col items-center justify-between p-2
+            flex items-center justify-center p-2 ${getSuitColor(card.suit)}
           `}
         >
-          {/* Верхний левый угол */}
-          <div
-            className={`flex flex-col items-center ${getSuitColor(card.suit)}`}
-          >
-            <div className={`font-bold leading-none ${getRankSize(card.rank)}`}>
-              {card.rank}
-            </div>
-            <div className="text-2xl leading-none">{card.suit}</div>
+          <div className={`font-medium leading-none ${getRankSize(card.rank)}`}>
+            {card.rank}
           </div>
-
-          {/* Центральный символ масти */}
-          <div className={`text-6xl ${getSuitColor(card.suit)} opacity-80`}>
-            {card.suit}
-          </div>
-
-          {/* Нижний правый угол (перевернутый) */}
-          <div
-            className={`flex flex-col items-center transform rotate-180 ${getSuitColor(
-              card.suit
-            )}`}
-          >
-            <div className={`font-bold leading-none ${getRankSize(card.rank)}`}>
-              {card.rank}
-            </div>
-            <div className="text-2xl leading-none">{card.suit}</div>
+          <div className="text-4xl leading-none">
+            {getSuitComponent(card.suit)}
           </div>
         </div>
       </div>
@@ -105,3 +73,24 @@ export default function Card({ card, onClick, disabled = false }: CardProps) {
     </div>
   );
 }
+
+const getSuitColor = (suit: string): string => {
+  return suit === "♥" || suit === "♦" ? "text-rose-600" : "text-black";
+};
+
+const getRankSize = (rank: string): string => {
+  return rank === "10" ? "text-3xl" : "text-4xl";
+};
+
+const getSuitComponent = (suit: string) => {
+  switch (suit) {
+    case "♥":
+      return <Heart strokeWidth={3} size={28} className="text-rose-600" />;
+    case "♦":
+      return <Diamond strokeWidth={3} size={28} className="text-rose-600 " />;
+    case "♣":
+      return <Club strokeWidth={3} size={28} className="text-black " />;
+    case "♠":
+      return <Spade strokeWidth={3} size={28} className="text-black " />;
+  }
+};

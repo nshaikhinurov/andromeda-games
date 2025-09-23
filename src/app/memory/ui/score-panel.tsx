@@ -17,7 +17,7 @@ export default function ScorePanel({
   isGameActive,
 }: ScorePanelProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-4 max-w-lg mx-auto">
       {/* Заголовок */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">

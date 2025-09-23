@@ -13,7 +13,6 @@ interface GameBoardProps {
   gameState: GameState;
   onGameStateChange: (newState: GameState) => void;
   gridCols: number;
-  gridRows: number;
 }
 
 /**
@@ -23,13 +22,9 @@ export default function GameBoard({
   gameState,
   onGameStateChange,
   gridCols,
-  gridRows,
 }: GameBoardProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
-  /**
-   * Обработка клика по карте
-   */
   const handleCardClick = useCallback(
     async (cardId: string) => {
       if (isProcessing || gameState.isGameOver) return;
@@ -66,24 +61,6 @@ export default function GameBoard({
   );
 
   /**
-   * Генерирует CSS класс для сетки в зависимости от размера
-   */
-  const getGridClass = () => {
-    switch (gridCols) {
-      case 3:
-        return "grid-cols-3";
-      case 4:
-        return "grid-cols-4";
-      case 5:
-        return "grid-cols-5";
-      case 6:
-        return "grid-cols-6";
-      default:
-        return "grid-cols-4";
-    }
-  };
-
-  /**
    * Проверяет, должна ли карта быть отключена
    */
   const isCardDisabled = (cardId: string) => {
@@ -98,23 +75,20 @@ export default function GameBoard({
   return (
     <div className="flex flex-col items-center space-y-6">
       {/* Заголовок игрового поля */}
-      <div className="text-center">
-        <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-          Игровое поле {gridCols}×{gridRows}
-        </h2>
-        {gameState.flippedCards.length === 2 && !isProcessing && (
+      {gameState.flippedCards.length === 2 && !isProcessing && (
+        <div className="text-center">
           <div className="text-sm text-blue-600 dark:text-blue-400 animate-pulse">
             Проверяем совпадение...
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Сетка карт */}
       <div
         className={`
-          grid ${getGridClass()} gap-3 sm:gap-4 lg:gap-6 
+          grid ${getGridClass(gridCols)} gap-2 sm:gap-4 lg:gap-6 
           p-4 sm:p-6 lg:p-8 
-          bg-gradient-to-br from-blue-50 to-indigo-100 
+          bg-white 
           dark:from-gray-800 dark:to-gray-900 
           rounded-2xl shadow-inner
           max-w-fit mx-auto
@@ -182,4 +156,19 @@ export default function GameBoard({
       )}
     </div>
   );
+}
+
+function getGridClass(gridCols: number) {
+  switch (gridCols) {
+    case 3:
+      return "grid-cols-3";
+    case 4:
+      return "grid-cols-4";
+    case 5:
+      return "grid-cols-5";
+    case 6:
+      return "grid-cols-6";
+    default:
+      return "grid-cols-4";
+  }
 }
