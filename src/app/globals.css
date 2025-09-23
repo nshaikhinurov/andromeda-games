@@ -120,3 +120,68 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Стили для 3D анимации карт */
+@layer utilities {
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  /* Анимация исчезновения совпавших карт */
+  .fade-out-matched {
+    animation: fadeOutMatched 0.6s ease-in-out forwards;
+  }
+
+  @keyframes fadeOutMatched {
+    0% {
+      opacity: 1;
+      transform: scale(1) rotateY(180deg);
+    }
+    50% {
+      transform: scale(1.1) rotateY(180deg);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.8) rotateY(180deg);
+    }
+  }
+
+  /* Анимация появления карт */
+  .appear-card {
+    animation: appearCard 0.4s ease-out forwards;
+  }
+
+  @keyframes appearCard {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Пульсация для выделения активных карт */
+  .pulse-active {
+    animation: pulseActive 1s ease-in-out infinite;
+  }
+
+  @keyframes pulseActive {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+    }
+  }
+}
