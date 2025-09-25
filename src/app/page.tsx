@@ -171,20 +171,25 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <FileCard
-              title="Tango Game"
-              metadata="Fill the grid with colors"
-              thumbnail="/placeholder.svg"
-            />
+            <FileCard title="Tango Game" metadata="Fill the grid with colors" />
             <FileCard
               title="Memory Game"
               metadata="Card game to test your memory"
-              thumbnail="/placeholder.svg"
+              thumbnail={
+                <Image
+                  src={"/memory-logo.svg"}
+                  alt="Memory Game"
+                  width={198.08}
+                  height={64.45}
+                  unoptimized
+                  className="w-[80%] h-auto mx-auto object-contain transition-transform group-hover:scale-105"
+                />
+              }
+              href="/memory"
             />
             <FileCard
               title="Kitsune: Whisper of the Fox"
               metadata="Three in a row game"
-              thumbnail="/placeholder.svg"
             />
           </div>
         </div>
@@ -249,24 +254,32 @@ function FileCard({
   title,
   metadata,
   thumbnail,
+  href = "#",
 }: {
   title: string;
   metadata: string;
-  thumbnail: string;
+  thumbnail?: React.ReactNode;
+  href?: string;
 }) {
+  const thumbnailPlaceholder = (
+    <Image
+      src="/placeholder.svg"
+      alt={title}
+      width={400}
+      height={300}
+      className="h-full w-full object-cover transition-transform group-hover:scale-105"
+    />
+  );
+
   return (
     <div className="group relative overflow-hidden rounded-lg border bg-white">
-      <div className="aspect-[4/3] overflow-hidden">
-        <Image
-          src={thumbnail || "/placeholder.svg"}
-          alt={title}
-          width={400}
-          height={300}
-          className="h-full w-full object-cover transition-transform group-hover:scale-105"
-        />
+      <div className="aspect-[4/3] overflow-hidden flex items-center justify-center ">
+        {thumbnail || thumbnailPlaceholder}
       </div>
-      <div className="p-4">
-        <h3 className="font-medium text-gray-900">{title}</h3>
+      <div className="p-4 border-t">
+        <Link href={href} className="hover:underline">
+          <h3 className="font-medium text-gray-900">{title}</h3>
+        </Link>
         <p className="text-sm text-gray-500">{metadata}</p>
       </div>
     </div>
