@@ -5,9 +5,17 @@ interface CardProps {
   card: CardType;
   onClick: (cardId: string) => void;
   disabled?: boolean;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export default function Card({ card, onClick, disabled = false }: CardProps) {
+export default function Card({
+  card,
+  onClick,
+  disabled = false,
+  className,
+  style,
+}: CardProps) {
   const handleClick = () => {
     if (!disabled && !card.isFlipped && !card.isMatched) {
       onClick(card.id);
@@ -16,48 +24,31 @@ export default function Card({ card, onClick, disabled = false }: CardProps) {
 
   return (
     <div
-      className={`
-        relative w-20 h-28 sm:w-24 sm:h-32 lg:w-28 lg:h-36 
-        cursor-pointer select-none transition-all duration-300
-        ${card.isMatched ? "opacity-0 scale-90" : "opacity-100 scale-100"}
-        ${disabled ? "cursor-not-allowed" : "hover:scale-105"}
-      `}
+      className={`${className} relative h-36 w-28 transition-all duration-300 select-none ${card.isMatched ? "scale-90 opacity-0" : "scale-100 opacity-100"} ${disabled ? "" : "hover:scale-105"} `}
       onClick={handleClick}
+      style={style}
     >
       {/* Контейнер для 3D эффекта переворота */}
       <div
-        className={`
-          relative w-full h-full transition-transform duration-700 transform-style-preserve-3d
-          ${card.isFlipped ? "rotate-y-180" : ""}
-        `}
+        className={`transform-style-preserve-3d relative h-full w-full transition-transform duration-700 ${card.isFlipped ? "rotate-y-180" : ""} `}
       >
         {/* Рубашка карты (задняя сторона) */}
         <div
-          className={`
-            absolute inset-0 w-full h-full rounded-lg border-2 border-gray-300 
-            shadow-lg backface-hidden bg-gradient-to-br from-blue-600 to-blue-800
-            flex items-center justify-center
-          `}
+          className={`absolute inset-0 flex h-full w-full items-center justify-center rounded-lg border border-gray-300 bg-gradient-to-br from-blue-600 to-blue-800 shadow-md inset-ring-7 inset-ring-white backface-hidden`}
         >
-          <div className="text-white  opacity-30 ">
+          <div className="text-white opacity-30">
             <Spade strokeWidth={3} />
             <Heart strokeWidth={3} />
             <Club strokeWidth={3} />
             <Diamond strokeWidth={3} />
           </div>
-          {/* Узор на рубашке */}
-          <div className="absolute inset-2 border border-blue-300 rounded-md opacity-30" />
         </div>
 
         {/* Лицевая сторона карты */}
         <div
-          className={`
-            absolute inset-0 w-full h-full rounded-lg border-2 border-gray-300 
-            shadow-lg backface-hidden rotate-y-180 bg-white
-            flex items-center justify-center p-2 ${getSuitColor(card.suit)}
-          `}
+          className={`absolute inset-0 flex h-full w-full rotate-y-180 items-center justify-center rounded-lg border-2 border-gray-300 bg-white p-2 shadow-md backface-hidden ${getSuitColor(card.suit)} `}
         >
-          <div className={`font-medium leading-none ${getRankSize(card.rank)}`}>
+          <div className={`leading-none font-medium ${getRankSize(card.rank)}`}>
             {card.rank}
           </div>
           <div className="text-4xl leading-none">
@@ -68,7 +59,7 @@ export default function Card({ card, onClick, disabled = false }: CardProps) {
 
       {/* Эффект свечения при совпадении */}
       {card.isMatched && (
-        <div className="absolute inset-0 rounded-lg bg-green-400 opacity-30 animate-pulse" />
+        <div className="absolute inset-0 animate-pulse rounded-lg bg-green-400 opacity-30" />
       )}
     </div>
   );
@@ -87,10 +78,10 @@ const getSuitComponent = (suit: string) => {
     case "♥":
       return <Heart strokeWidth={3} size={28} className="text-rose-600" />;
     case "♦":
-      return <Diamond strokeWidth={3} size={28} className="text-rose-600 " />;
+      return <Diamond strokeWidth={3} size={28} className="text-rose-600" />;
     case "♣":
-      return <Club strokeWidth={3} size={28} className="text-black " />;
+      return <Club strokeWidth={3} size={28} className="text-black" />;
     case "♠":
-      return <Spade strokeWidth={3} size={28} className="text-black " />;
+      return <Spade strokeWidth={3} size={28} className="text-black" />;
   }
 };

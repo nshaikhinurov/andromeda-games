@@ -1,102 +1,92 @@
 import { Button } from "@/components/ui/button";
+import { ChartColumnBig, Gamepad2, RefreshCw } from "lucide-react";
+import { GameState } from "../lib/game-logic";
+import { Paper } from "./paper";
 
 interface ScorePanelProps {
-  score: number;
-  moves: number;
   onNewGame: () => void;
   isGameActive: boolean;
+  gridCols: number;
+  gridRows: number;
+  gameState: GameState;
 }
 
 /**
  * Компонент панели с информацией об игре и управлением
  */
 export default function ScorePanel({
-  score,
-  moves,
   onNewGame,
   isGameActive,
+  gridCols,
+  gridRows,
+  gameState,
 }: ScorePanelProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-4 max-w-lg mx-auto">
-      {/* Заголовок */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">
-          Memory Game
-        </h1>
-        <div className="h-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mx-auto w-24" />
-      </div>
+    <Paper className="space-y-6">
+      <h1 className="text-center text-2xl font-semibold text-gray-800 dark:text-white  flex items-center justify-center gap-2">
+        <ChartColumnBig /> Статистика игры
+      </h1>
 
-      {/* Статистика игры */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Счет */}
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 rounded-lg p-4 text-center">
-          <div className="text-sm font-medium text-green-700 dark:text-green-300 mb-1">
-            Очки
-          </div>
-          <div className="text-2xl font-bold text-green-800 dark:text-green-100">
-            {score.toLocaleString()}
+        <div className="bg-gray-100 text-gray-800 rounded-lg p-4 text-center">
+          <div className="text-sm font-medium  mb-1">Очки</div>
+          <div className="text-2xl font-bold ">
+            {gameState.score.toLocaleString()}
           </div>
         </div>
 
-        {/* Ходы */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-lg p-4 text-center">
-          <div className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">
-            Ходы
-          </div>
-          <div className="text-2xl font-bold text-blue-800 dark:text-blue-100">
-            {moves}
-          </div>
+        <div className="bg-gray-100 text-gray-800 rounded-lg p-4 text-center">
+          <div className="text-sm font-medium  mb-1">Ходы</div>
+          <div className="text-2xl font-bold ">{gameState.moves}</div>
         </div>
       </div>
 
-      {/* Кнопка новой игры */}
-      <div className="pt-2">
-        <Button
-          onClick={onNewGame}
-          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
-          size="lg"
-        >
-          {isGameActive ? "🔄 Новая игра" : "🎮 Начать игру"}
-        </Button>
-      </div>
-
-      {/* Правила игры (сворачиваемые) */}
-      <details className="mt-6">
-        <summary className="cursor-pointer text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors">
-          📖 Правила игры
-        </summary>
-        <div className="mt-3 text-xs text-gray-500 dark:text-gray-400 space-y-2 bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-          <p>• Переворачивайте по две карты за ход</p>
-          <p>• При совпадении пары: +{42} × оставшиеся пары</p>
-          <p>• При несовпадении: -{42} × найденные пары</p>
-          <p>• Найдите все пары для победы!</p>
+      <div className="grid gap-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-gray-600 dark:text-gray-400">Размер поля</span>
+          <span className="font-medium">
+            {gridCols}×{gridRows}
+          </span>
         </div>
-      </details>
 
-      {/* Индикатор эффективности */}
-      {isGameActive && moves > 0 && (
-        <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-            Эффективность
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="flex-1 bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-              <div
-                className="bg-gradient-to-r from-yellow-400 to-green-500 h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min(
-                    100,
-                    Math.max(0, (score / (moves * 100)) * 100)
-                  )}%`,
-                }}
-              />
-            </div>
-            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-              {Math.round((score / (moves * 100)) * 100) || 0}%
+        <div>
+          <div className="flex justify-between   mb-2">
+            <span className="text-gray-600 dark:text-gray-400">Прогресс</span>
+            <span className="font-medium">
+              {gameState.cards.filter((card) => card.isMatched).length / 2} /{" "}
+              {gameState.cards.length / 2} пар
             </span>
           </div>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div
+              className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full transition-all duration-500 ease-out"
+              style={{
+                width: `${
+                  (gameState.cards.filter((card) => card.isMatched).length /
+                    gameState.cards.length) *
+                  100
+                }%`,
+              }}
+            />
+          </div>
         </div>
-      )}
-    </div>
+      </div>
+
+      <Button
+        onClick={onNewGame}
+        className="pt-2 w-full bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 transform  shadow-lg flex items-center justify-center gap-2"
+        size="lg"
+      >
+        {isGameActive ? (
+          <>
+            <RefreshCw strokeWidth={2.5} /> Новая игра
+          </>
+        ) : (
+          <>
+            <Gamepad2 strokeWidth={2.5} /> Начать игру
+          </>
+        )}
+      </Button>
+    </Paper>
   );
 }

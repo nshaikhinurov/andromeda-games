@@ -1,14 +1,12 @@
 "use client";
 
 import { createInitialGameState, GameState } from "@/app/memory/lib/game-logic";
-import GameBoard from "@/app/memory/ui/game-board";
 import GameOverModal from "@/app/memory/ui/game-over-modal";
-import ScorePanel from "@/app/memory/ui/score-panel";
 
 import { useEffect, useState } from "react";
 import { DifficultyTabs } from "./ui/difficulty-tabs";
+import { GameContent } from "./ui/game-content";
 import { GameInstructions } from "./ui/game-instructions";
-import { GameStats } from "./ui/game-stats";
 import { Title } from "./ui/title";
 
 export default function MemoryGameHomePage() {
@@ -57,7 +55,7 @@ export default function MemoryGameHomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50  to-gray-200 dark:from-gray-900 dark:to-gray-700 p-4 md:p-6 xl:p-8">
-      <div className="container mx-auto max-w-7xl flex flex-col gap-4 items-stretch">
+      <div className="container mx-auto max-w-7xl flex flex-col gap-4 sm:gap-6 xl:gap-8 items-stretch">
         <Title showSubtitle={!gameStarted} />
 
         {!gameStarted && (
@@ -66,34 +64,14 @@ export default function MemoryGameHomePage() {
 
         {!gameStarted && <GameInstructions />}
 
-        {/* Игровой интерфейс */}
         {gameStarted && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Панель счета (слева на десктопе, сверху на мобильных) */}
-            <div className="lg:col-span-1 order-2 lg:order-1">
-              <ScorePanel
-                score={gameState.score}
-                moves={gameState.moves}
-                onNewGame={() => handleNewGame(gridCols, gridRows)}
-                isGameActive={gameStarted && !gameState.isGameOver}
-              />
-
-              <GameStats
-                gameState={gameState}
-                gridCols={gridCols}
-                gridRows={gridRows}
-              />
-            </div>
-
-            {/* Игровое поле (справа на десктопе, сверху на мобильных) */}
-            <div className="lg:col-span-3 order-1 lg:order-2">
-              <GameBoard
-                gameState={gameState}
-                onGameStateChange={handleGameStateChange}
-                gridCols={gridCols}
-              />
-            </div>
-          </div>
+          <GameContent
+            gameState={gameState}
+            handleNewGame={handleNewGame}
+            handleGameStateChange={handleGameStateChange}
+            gridCols={gridCols}
+            gridRows={gridRows}
+          />
         )}
 
         <GameOverModal

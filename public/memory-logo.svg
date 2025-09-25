@@ -3,12 +3,12 @@
   <defs>
     <style>
       .cls-1 {
-        fill: currentColor;
+        fill: oklch(27.8% 0.033 256.848);
       }
 
       .cls-2 {
         fill: none;
-        stroke: currentColor;
+        stroke: oklch(27.8% 0.033 256.848);
         stroke-linecap: round;
         stroke-linejoin: round;
         stroke-width: 4px;

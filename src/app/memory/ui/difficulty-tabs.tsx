@@ -46,7 +46,7 @@ export const DifficultyTabs = ({
             </p>
             <button
               onClick={() => handleNewGame(tab.cols, tab.rows)}
-              className={`text-white px-6 py-2 rounded-lg font-semibold transition-colors ${tab.className}`}
+              className={`text-white px-6 py-2 w-55 rounded-lg font-semibold transition-colors ${tab.className}`}
             >
               Начать игру {tab.cols}×{tab.rows}
             </button>
