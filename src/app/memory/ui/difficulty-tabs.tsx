@@ -1,4 +1,8 @@
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
+import { palette } from "./palette";
+import { Paper } from "./paper";
 
 const tabsConfig = [
   {
@@ -6,21 +10,22 @@ const tabsConfig = [
     description: "16 карт, 8 пар — отлично для начинающих",
     rows: 4,
     cols: 4,
-    className: "bg-green-600 hover:bg-green-700",
+    className: palette.yellowish,
   },
   {
     title: "Средний уровень",
     description: "24 карты, 12 пар — классическая версия",
     rows: 4,
     cols: 6,
-    className: "bg-blue-600 hover:bg-blue-700",
+
+    className: palette.redish,
   },
   {
     title: "Сложный уровень",
     description: "36 карт, 18 пар — для настоящих мастеров",
     rows: 6,
     cols: 6,
-    className: "bg-purple-600 hover:bg-purple-700",
+    className: palette.purpleish,
   },
 ];
 
@@ -30,27 +35,47 @@ export const DifficultyTabs = ({
   onDifficultySelected: (cols: number, rows: number) => void;
 }) => {
   return (
-    <Tabs defaultValue="0" className="w-full max-w-lg mx-auto">
+    <Tabs defaultValue="0" className="mx-auto w-full max-w-lg">
       <TabsList className="grid w-full grid-cols-3">
-        <TabsTrigger value="0">4×4</TabsTrigger>
-        <TabsTrigger value="1">6×4</TabsTrigger>
-        <TabsTrigger value="2">6×6</TabsTrigger>
+        <TabsTrigger
+          className="text-base data-[state=active]:bg-[oklch(0.755_0.18_75)] data-[state=active]:text-white"
+          value="0"
+        >
+          4×4
+        </TabsTrigger>
+        <TabsTrigger
+          className="text-base data-[state=active]:bg-[oklch(0.625_0.18_15)] data-[state=active]:text-white"
+          value="1"
+        >
+          6×4
+        </TabsTrigger>
+        <TabsTrigger
+          className="text-base data-[state=active]:bg-[oklch(0.525_0.18_304)] data-[state=active]:text-white"
+          value="2"
+        >
+          6×6
+        </TabsTrigger>
       </TabsList>
 
       {tabsConfig.map((tab, index) => (
         <TabsContent key={index} value={index.toString()} className=" ">
-          <div className="text-center p-8 bg-white dark:bg-gray-800 rounded-xl">
-            <h3 className="font-semibold mb-2">{tab.title}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <Paper className="text-center">
+            <h3 className="mb-3 text-xl font-semibold">{tab.title}</h3>
+            <p className="mb-5 text-gray-600 dark:text-gray-400">
               {tab.description}
             </p>
-            <button
+
+            <Button
+              size={"lg"}
               onClick={() => handleNewGame(tab.cols, tab.rows)}
-              className={`text-white px-6 py-2 w-55 rounded-lg font-semibold transition-colors ${tab.className}`}
+              className={cn(
+                `w-55 rounded-lg px-6 py-2 font-semibold text-white uppercase transition-colors`,
+                tab.className,
+              )}
             >
-              Начать игру {tab.cols}×{tab.rows}
-            </button>
-          </div>
+              Начать игру
+            </Button>
+          </Paper>
         </TabsContent>
       ))}
     </Tabs>

@@ -13,7 +13,7 @@ import { Paper } from "./paper";
 interface GameBoardProps {
   gameState: GameState;
   onGameStateChange: (newState: GameState) => void;
-  gridCols: number;
+  maxGridCols: number;
 }
 
 /**
@@ -22,7 +22,7 @@ interface GameBoardProps {
 export default function GameBoard({
   gameState,
   onGameStateChange,
-  gridCols,
+  maxGridCols,
 }: GameBoardProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -44,12 +44,12 @@ export default function GameBoard({
         const isMatch = cardsMatch(firstCard, secondCard);
 
         if (!isMatch) {
-          // Ждем 1.5 секунды перед переворотом карт обратно
+          // Ждем 1 секунду перед переворотом карт обратно
           setTimeout(() => {
             const resetState = resetFlippedCards(newState);
             onGameStateChange(resetState);
             setIsProcessing(false);
-          }, 1500);
+          }, 1000);
         } else {
           // Небольшая задержка для показа совпадения
           setTimeout(() => {
@@ -74,10 +74,25 @@ export default function GameBoard({
   };
 
   return (
-    <div className="flex grow flex-col items-center space-y-6">
+    <div className="flex w-full min-w-[328px] flex-col items-center space-y-6">
       {/* Сетка карт */}
       <Paper
-        className={`mx-auto grid w-full grid-cols-[repeat(auto-fit,minmax(112px,1fr))] justify-items-center gap-4`}
+        className={`mx-auto grid w-full`}
+        style={
+          {
+            // setting max-columns while using auto-fit
+            "--grid-max-col-count": maxGridCols,
+            "--grid-min-col-size": "100px",
+            "--grid-gap": "12px",
+            "--grid-col-size-calc":
+              "calc((100% - (var(--grid-gap) * (var(--grid-max-col-count) - 1))) / var(--grid-max-col-count))",
+            "--grid-col-min-size-calc":
+              "min(100%, max(var(--grid-min-col-size), var(--grid-col-size-calc)))",
+            gap: "var(--grid-gap)",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(var(--grid-col-min-size-calc), 1fr))",
+          } as React.CSSProperties
+        }
       >
         {gameState.cards.map((card, index) => (
           <Card
@@ -85,34 +100,12 @@ export default function GameBoard({
             onClick={handleCardClick}
             disabled={isCardDisabled(card.id)}
             key={card.id}
-            className="appear-card"
             style={{
               animationDelay: `${index * 50}ms`,
             }}
           />
         ))}
       </Paper>
-
-      {/* Состояние игры */}
-      {isProcessing && (
-        <div className="text-center">
-          <div className="inline-flex items-center space-x-2 text-blue-600 dark:text-blue-400">
-            <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-current"></div>
-            <span className="text-sm">Обрабатываем ход...</span>
-          </div>
-        </div>
-      )}
-
-      {gameState.isGameOver && (
-        <div className="rounded-lg bg-green-100 p-4 text-center dark:bg-green-900">
-          <div className="text-lg font-bold text-green-800 dark:text-green-200">
-            🎉 Поздравляем! Игра завершена!
-          </div>
-          <div className="mt-1 text-sm text-green-600 dark:text-green-400">
-            Все пары найдены за {gameState.moves} ходов
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@plugin "tailwindcss-motion";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -123,18 +124,6 @@
 
 /* Стили для 3D анимации карт */
 @layer utilities {
-  .transform-style-preserve-3d {
-    transform-style: preserve-3d;
-  }
-
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-
-  .rotate-y-180 {
-    transform: rotateY(180deg);
-  }
-
   /* Анимация исчезновения совпавших карт */
   .fade-out-matched {
     animation: fadeOutMatched 0.6s ease-in-out forwards;
@@ -167,21 +156,6 @@
     100% {
       opacity: 1;
       transform: scale(1);
-    }
-  }
-
-  /* Пульсация для выделения активных карт */
-  .pulse-active {
-    animation: pulseActive 1s ease-in-out infinite;
-  }
-
-  @keyframes pulseActive {
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-    }
-    50% {
-      box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
     }
   }
 }

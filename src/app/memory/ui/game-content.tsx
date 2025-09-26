@@ -17,14 +17,14 @@ export const GameContent = ({
   gridRows: number;
 }) => {
   return (
-    <div className="flex flex-wrap flex-row-reverse gap-6 justify-center ">
+    <div className="flex w-full max-w-5xl flex-col items-center gap-6">
       <GameBoard
         gameState={gameState}
         onGameStateChange={handleGameStateChange}
-        gridCols={gridCols}
+        maxGridCols={gridCols}
       />
 
-      <div className="w-full max-w-md flex flex-col gap-6 items-stretch">
+      <div className="flex w-full max-w-lg shrink flex-col items-stretch gap-6">
         <ScorePanel
           onNewGame={() => handleNewGame(gridCols, gridRows)}
           isGameActive={!gameState.isGameOver}

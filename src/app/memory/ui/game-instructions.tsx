@@ -1,3 +1,6 @@
+import { Gamepad2 } from "lucide-react";
+import { Paper } from "./paper";
+
 interface InstructionItemProps {
   title: string;
   description: string;
@@ -19,15 +22,15 @@ const InstructionItem = ({
   };
 
   return (
-    <li className="flex items-start space-x-3 [counter-increment:step-counter]">
+    <li className="flex items-start space-x-5 [counter-increment:step-counter]">
       <div
-        className={`${colorClasses[colorScheme]} rounded-full p-2 font-bold text-sm w-8 h-8 flex items-center justify-center flex-shrink-0 before:content-[counter(step-counter)] `}
+        className={`${colorClasses[colorScheme]} flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full p-2 text-sm font-bold before:content-[counter(step-counter)]`}
       ></div>
-      <div>
-        <h3 className="font-semibold text-gray-800 dark:text-white">{title}</h3>
-        <p className="text-gray-600 dark:text-gray-400 text-sm ">
-          {description}
-        </p>
+      <div className="space-y-3">
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+          {title}
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">{description}</p>
       </div>
     </li>
   );
@@ -62,9 +65,9 @@ const instructions = [
 
 export const GameInstructions = () => {
   return (
-    <div className=" max-w-lg mx-auto bg-white dark:bg-gray-800 rounded-xl  p-8">
-      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-white">
-        🎮 Как играть
+    <Paper className="mx-auto max-w-lg">
+      <h2 className="mb-6 flex items-center justify-center gap-2 text-center text-2xl font-bold text-gray-800 dark:text-white">
+        <Gamepad2 className="size-[1.5em]" /> Как играть
       </h2>
 
       <ol className="grid gap-6 [counter-reset:step-counter]">
@@ -77,6 +80,6 @@ export const GameInstructions = () => {
           />
         ))}
       </ol>
-    </div>
+    </Paper>
   );
 };

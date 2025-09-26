@@ -11,7 +11,7 @@ import { Title } from "./ui/title";
 
 export default function MemoryGameHomePage() {
   const [gameState, setGameState] = useState<GameState>(() =>
-    createInitialGameState(4, 4)
+    createInitialGameState(4, 4),
   );
   const [gridCols, setGridCols] = useState(4);
   const [gridRows, setGridRows] = useState(4);
@@ -54,15 +54,14 @@ export default function MemoryGameHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50  to-gray-200 dark:from-gray-900 dark:to-gray-700 p-4 md:p-6 xl:p-8">
-      <div className="container mx-auto max-w-7xl flex flex-col gap-4 sm:gap-6 xl:gap-8 items-stretch">
+    <div className="min-h-screen bg-gradient-to-b from-stone-100 to-stone-300 p-4 md:p-6 xl:p-8 dark:from-stone-900 dark:to-stone-700">
+      <div className="container mx-auto flex max-w-7xl flex-col items-center gap-4 sm:gap-6 xl:gap-8">
         <Title showSubtitle={!gameStarted} />
 
+        {!gameStarted && <GameInstructions />}
         {!gameStarted && (
           <DifficultyTabs onDifficultySelected={handleNewGame} />
         )}
-
-        {!gameStarted && <GameInstructions />}
 
         {gameStarted && (
           <GameContent
