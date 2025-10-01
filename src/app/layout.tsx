@@ -10,6 +10,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Andromeda Games",
   description: "A collection of fun and engaging games",
+  icons: {
+    icon: "/andromeda-games-logo.svg",
+  },
 };
 
 export default function RootLayout({
