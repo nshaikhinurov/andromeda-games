@@ -1,4 +1,10 @@
-import { Gamepad2 } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown, Gamepad2 } from "lucide-react";
+import { useState } from "react";
 import { Paper } from "./paper";
 
 interface InstructionItemProps {
@@ -38,21 +44,21 @@ const InstructionItem = ({
 
 const instructions = [
   {
-    title: "Переворачивайте карты",
+    title: "Запомните начальное расположение карт",
     description:
-      "Кликайте по картам, чтобы увидеть их значение. За один ход можно открыть только две карты.",
+      "В начале игры все карты открываются на несколько секунд. Постарайтесь запомнить их расположение.",
     colorScheme: "green" as const,
   },
   {
     title: "Находите пары",
     description:
-      "Если две карты совпадают, они остаются открытыми и исчезают с поля.",
+      "Выберите две карты, чтобы перевернуть их. Если они совпадают, они исчезнут с поля. Если нет, они перевернутся обратно.",
     colorScheme: "blue" as const,
   },
   {
     title: "Набирайте очки",
     description:
-      "За каждую найденную пару получайте очки. Чем меньше ходов, тем больше очков!",
+      "За каждую найденную пару вы получаете очки. Чем меньше раскрытых пар на поле, тем больше очков вы получите! Будьте внимательны и стратегичны: в случае ошибки вы потеряете очки.",
     colorScheme: "purple" as const,
   },
   {
@@ -64,22 +70,38 @@ const instructions = [
 ];
 
 export const GameInstructions = () => {
-  return (
-    <Paper className="mx-auto max-w-lg">
-      <h2 className="mb-6 flex items-center justify-center gap-2 text-center text-2xl font-bold text-gray-800 dark:text-white">
-        <Gamepad2 className="size-[1.5em]" /> Как играть
-      </h2>
+  const [isOpen, setIsOpen] = useState(false);
 
-      <ol className="grid gap-6 [counter-reset:step-counter]">
-        {instructions.map((instruction, index) => (
-          <InstructionItem
-            key={index}
-            title={instruction.title}
-            description={instruction.description}
-            colorScheme={instruction.colorScheme}
-          />
-        ))}
-      </ol>
-    </Paper>
+  return (
+    <Collapsible className="w-full" open={isOpen} onOpenChange={setIsOpen}>
+      <Paper className={`mx-auto flex max-w-lg flex-col`}>
+        <CollapsibleTrigger asChild>
+          <h2
+            className={`flex cursor-pointer items-center justify-center gap-2 text-center text-xl ${isOpen ? "text-gray-800" : "text-gray-600"} font-bold transition-colors hover:text-gray-800`}
+          >
+            <Gamepad2 className="size-[1.5em]" />
+            Как играть
+            <ChevronDown
+              className={`size-[1.5em] transition-transform duration-200 ${
+                isOpen ? "rotate-180" : "rotate-0"
+              }`}
+            />
+          </h2>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-slideUp data-[state=open]:animate-slideDown">
+          <ol className="mt-6 grid gap-6 [counter-reset:step-counter]">
+            {instructions.map((instruction, index) => (
+              <InstructionItem
+                key={index}
+                title={instruction.title}
+                description={instruction.description}
+                colorScheme={instruction.colorScheme}
+              />
+            ))}
+          </ol>
+        </CollapsibleContent>
+      </Paper>
+    </Collapsible>
   );
 };

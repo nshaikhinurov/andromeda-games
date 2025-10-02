@@ -14,6 +14,7 @@ interface GameBoardProps {
   gameState: GameState;
   onGameStateChange: (newState: GameState) => void;
   maxGridCols: number;
+  isPreviewActive: boolean;
 }
 
 /**
@@ -23,12 +24,13 @@ export default function GameBoard({
   gameState,
   onGameStateChange,
   maxGridCols,
+  isPreviewActive,
 }: GameBoardProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCardClick = useCallback(
     async (cardId: string) => {
-      if (isProcessing || gameState.isGameOver) return;
+      if (isProcessing || gameState.isGameOver || isPreviewActive) return;
 
       // Не позволяем кликать если уже две карты перевернуты
       if (gameState.flippedCards.length >= 2) return;
@@ -58,7 +60,7 @@ export default function GameBoard({
         }
       }
     },
-    [gameState, onGameStateChange, isProcessing],
+    [gameState, onGameStateChange, isProcessing, isPreviewActive],
   );
 
   /**
@@ -68,9 +70,20 @@ export default function GameBoard({
     return (
       isProcessing ||
       gameState.isGameOver ||
+      isPreviewActive ||
       gameState.flippedCards.length >= 2 ||
       gameState.cards.find((card) => card.id === cardId)?.isMatched
     );
+  };
+
+  /**
+   * Получает состояние карты с учетом режима предпросмотра
+   */
+  const getDisplayCard = (card: any) => {
+    if (isPreviewActive && !card.isMatched) {
+      return { ...card, isFlipped: true };
+    }
+    return card;
   };
 
   return (
@@ -96,7 +109,7 @@ export default function GameBoard({
       >
         {gameState.cards.map((card, index) => (
           <Card
-            card={card}
+            card={getDisplayCard(card)}
             onClick={handleCardClick}
             disabled={isCardDisabled(card.id)}
             key={card.id}

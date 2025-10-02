@@ -17,6 +17,7 @@ export default function MemoryGameHomePage() {
   const [gridRows, setGridRows] = useState(4);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [isPreviewActive, setIsPreviewActive] = useState(false);
 
   // Отслеживаем завершение игры
   useEffect(() => {
@@ -28,6 +29,17 @@ export default function MemoryGameHomePage() {
     }
   }, [gameState.isGameOver, showGameOverModal, gameStarted]);
 
+  // Управляем предпросмотром карт
+  useEffect(() => {
+    if (isPreviewActive) {
+      const timer = setTimeout(() => {
+        setIsPreviewActive(false);
+      }, 5000); // 5 секунд
+
+      return () => clearTimeout(timer);
+    }
+  }, [isPreviewActive]);
+
   /**
    * Начинает новую игру
    */
@@ -37,6 +49,7 @@ export default function MemoryGameHomePage() {
     setGameState(createInitialGameState(newGridCols, newGridRows));
     setShowGameOverModal(false);
     setGameStarted(true);
+    setIsPreviewActive(true);
   };
 
   /**
@@ -70,6 +83,7 @@ export default function MemoryGameHomePage() {
             handleGameStateChange={handleGameStateChange}
             gridCols={gridCols}
             gridRows={gridRows}
+            isPreviewActive={isPreviewActive}
           />
         )}
 
