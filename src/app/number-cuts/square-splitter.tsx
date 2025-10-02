@@ -50,6 +50,16 @@ function makeRng(seed = Date.now()) {
   };
 }
 
+// Функция перемешивания массива (алгоритм Фишера-Йейтса)
+function shuffle<T>(array: T[], rng: () => number): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
 // Геометрические вспомогательные функции
 const eps = 1e-9;
 
@@ -456,7 +466,7 @@ function splitSquareIntoParts(optsIn: Options) {
 }
 
 // Преобразовать многоугольники в SVG пути (многоугольники залиты пустотой, ребра нарисованы отдельно)
-function polygonsToSvg(polys: Polygon[]) {
+function polygonsToSvg(polys: Polygon[], rng: () => number) {
   const segs = uniqueSegments(polys);
   const paths: string[] = [];
   for (const [a, b] of segs) {
@@ -465,8 +475,19 @@ function polygonsToSvg(polys: Polygon[]) {
       `M ${a.x.toFixed(4)} ${a.y.toFixed(4)} L ${b.x.toFixed(4)} ${b.y.toFixed(4)}`,
     );
   }
+
+  // Перемешиваем полигоны
+  const shuffledPolys = shuffle(polys, rng);
+
+  // Вычисляем центроиды для каждого перемешанного полигона
+  const polyData = shuffledPolys.map((poly, index) => ({
+    polygon: poly,
+    center: centroid(poly),
+    number: index + 1,
+  }));
+
   // также строим заливки многоугольников (нам нужна только заливка исходного квадрата; по запросу пользователя)
-  return { segPaths: paths, polys };
+  return { segPaths: paths, polyData };
 }
 
 // Свойства React компонента
@@ -485,9 +506,10 @@ export default function SquareSplitterSVG(props: Props) {
     randomSeed: props.randomSeed ?? Math.floor(Math.random() * 2 ** 31),
   };
 
-  const { segPaths, polys } = useMemo(() => {
+  const { segPaths, polyData } = useMemo(() => {
     const pieces = splitSquareIntoParts(options);
-    return polygonsToSvg(pieces);
+    const rng = makeRng(options.randomSeed);
+    return polygonsToSvg(pieces, rng);
   }, [
     options.n,
     options.svgSize,
@@ -503,7 +525,7 @@ export default function SquareSplitterSVG(props: Props) {
   const size = options.svgSize!;
   return (
     <div>
-      <span>Полигонов: {polys.length} </span>
+      <span>Полигонов: {polyData.length} </span>
       <svg
         width={size}
         height={size}
@@ -524,6 +546,25 @@ export default function SquareSplitterSVG(props: Props) {
         <g stroke="#000" strokeWidth={2} fill="none" strokeLinecap="round">
           {segPaths.map((d, i) => (
             <path key={i} d={d} />
+          ))}
+        </g>
+        {/* рисуем номера в центрах полигонов */}
+        <g
+          fill="#000"
+          fontSize="20"
+          fontFamily="Inter, sans-serif"
+          textAnchor="middle"
+          dominantBaseline="central"
+        >
+          {polyData.map((item, i) => (
+            <text
+              key={i}
+              x={item.center.x.toFixed(2)}
+              y={item.center.y.toFixed(2)}
+              fontWeight="bold"
+            >
+              {item.number}
+            </text>
           ))}
         </g>
       </svg>
