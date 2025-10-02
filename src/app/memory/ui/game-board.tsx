@@ -93,7 +93,7 @@ export default function GameBoard({
         className={`mx-auto grid w-full`}
         style={
           {
-            // setting max-columns while using auto-fit
+            // настройка максимального количества колонок при использовании auto-fit
             "--grid-max-col-count": maxGridCols,
             "--grid-min-col-size": "100px",
             "--grid-gap": "12px",

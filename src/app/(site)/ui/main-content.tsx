@@ -8,7 +8,7 @@ export const MainContent = () => {
         className="grid"
         style={
           {
-            // setting max-columns while using auto-fit
+            // настройка максимального количества колонок при использовании auto-fit
             "--grid-max-col-count": 5,
             "--grid-min-col-size": "240px",
             "--grid-gap": "24px",
@@ -33,7 +33,7 @@ export const MainContent = () => {
               width={198.08}
               height={64.45}
               unoptimized
-              className="w-[80%] h-auto mx-auto object-contain transition-transform group-hover:scale-105"
+              className="mx-auto h-auto w-[80%] object-contain transition-transform group-hover:scale-105"
             />
           }
         />
