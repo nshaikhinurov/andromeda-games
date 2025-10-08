@@ -67,7 +67,13 @@ export default function MemoryGameHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-100 to-stone-300 p-4 md:p-6 xl:p-8 dark:from-stone-900 dark:to-stone-700">
+    <div
+      className="h-screen bg-gradient-to-b from-stone-100 to-stone-300 p-4 md:p-6 xl:p-8 dark:from-stone-900 dark:to-stone-700"
+      style={{
+        scrollbarGutter: "stable both-edges",
+        overflowY: "auto",
+      }}
+    >
       <div className="container mx-auto flex max-w-7xl flex-col items-center gap-4 sm:gap-6 xl:gap-8">
         <Title showSubtitle={!gameStarted} />
 
