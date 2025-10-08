@@ -4,28 +4,33 @@ import { cn } from "@/lib/utils";
 import { palette } from "./palette";
 import { Paper } from "./paper";
 
-const tabsConfig = [
+const tabsConfig: Array<{
+  title: string;
+  description: string;
+  rows: number;
+  cols: number;
+  difficulty: "easy" | "medium" | "hard";
+}> = [
   {
     title: "Легкий уровень",
     description: "16 карт, 8 пар — отлично для начинающих",
     rows: 4,
     cols: 4,
-    className: palette.yellowish,
+    difficulty: "easy",
   },
   {
     title: "Средний уровень",
     description: "24 карты, 12 пар — классическая версия",
     rows: 4,
     cols: 6,
-
-    className: palette.redish,
+    difficulty: "medium",
   },
   {
     title: "Сложный уровень",
     description: "36 карт, 18 пар — для настоящих мастеров",
     rows: 6,
     cols: 6,
-    className: palette.purpleish,
+    difficulty: "hard",
   },
 ];
 
@@ -70,7 +75,11 @@ export const DifficultyTabs = ({
               onClick={() => handleNewGame(tab.cols, tab.rows)}
               className={cn(
                 `w-55 rounded-lg px-6 py-2 font-semibold text-white uppercase transition-colors`,
-                tab.className,
+                {
+                  [palette.yellowish]: tab.difficulty === "easy",
+                  [palette.redish]: tab.difficulty === "medium",
+                  [palette.purpleish]: tab.difficulty === "hard",
+                },
               )}
             >
               Начать игру

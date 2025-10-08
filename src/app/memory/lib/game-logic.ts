@@ -167,7 +167,7 @@ export function isGameComplete(cards: Card[]): boolean {
  */
 export function createInitialGameState(
   gridCols: number,
-  gridRows: number
+  gridRows: number,
 ): GameState {
   return {
     score: 0,
@@ -201,7 +201,7 @@ export function flipCard(gameState: GameState, cardId: string): GameState {
 
   // Создаем новый массив карт с перевернутой картой
   const newCards = cards.map((card) =>
-    card.id === cardId ? { ...card, isFlipped: true } : card
+    card.id === cardId ? { ...card, isFlipped: true } : card,
   );
 
   const newFlippedCards = [...flippedCards, cardToFlip];
@@ -219,7 +219,7 @@ export function flipCard(gameState: GameState, cardId: string): GameState {
       const matchedCards = newCards.map((card) =>
         card.id === firstCard.id || card.id === secondCard.id
           ? { ...card, isMatched: true }
-          : card
+          : card,
       );
 
       const remainingPairs = getRemainingPairs(matchedCards);
