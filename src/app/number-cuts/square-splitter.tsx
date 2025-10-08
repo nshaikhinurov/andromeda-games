@@ -1,4 +1,9 @@
-import { useMemo } from "react";
+"use client";
+
+import { Lacquer } from "next/font/google";
+import { useMemo, useRef } from "react";
+
+const lacquer = Lacquer({ subsets: ["latin"], weight: "400" });
 
 // React-компонент разделения квадрата на части
 // - Генерирует n многоугольных частей путем итеративного случайного разделения наибольшей части
@@ -173,6 +178,88 @@ function approxMinBBox(poly: Polygon, stepDeg = 2) {
     }
   }
   return bestBox!;
+}
+
+// Проверяет, находится ли прямоугольник полностью внутри полигона
+function isRectangleInsidePolygon(
+  rect: { x: number; y: number; width: number; height: number },
+  poly: Polygon,
+) {
+  // Проверяем все четыре угла прямоугольника
+  const corners = [
+    { x: rect.x, y: rect.y },
+    { x: rect.x + rect.width, y: rect.y },
+    { x: rect.x + rect.width, y: rect.y + rect.height },
+    { x: rect.x, y: rect.y + rect.height },
+  ];
+
+  // Все углы должны быть внутри полигона
+  return corners.every((corner) => pointInPolygon(corner, poly));
+}
+
+// Вычисляет оптимальный размер шрифта для помещения текста в полигон
+function calculateOptimalFontSize(poly: Polygon, textLength: number) {
+  const center = centroid(poly);
+
+  // Приблизительные коэффициенты для соотношения размера шрифта к размерам текста
+  const FONT_WIDTH_RATIO = 0.75; // ширина символа относительно размера шрифта
+  const FONT_HEIGHT_RATIO = 1.0; // высота текста относительно размера шрифта
+
+  // Начинаем с небольшого размера и увеличиваем до максимально возможного
+  let fontSize = 8;
+  let maxValidSize = 8;
+  const maxSize = 100;
+  const step = 3;
+
+  for (fontSize = 8; fontSize <= maxSize; fontSize += step) {
+    // Вычисляем размеры текстового блока
+    const textWidth = textLength * fontSize * FONT_WIDTH_RATIO;
+    const textHeight = fontSize * FONT_HEIGHT_RATIO;
+
+    // Создаем прямоугольник текста центрированный в центроиде полигона
+    const textRect = {
+      x: center.x - textWidth / 2,
+      y: center.y - textHeight / 2,
+      width: textWidth,
+      height: textHeight,
+    };
+
+    // Проверяем, помещается ли текстовый блок полностью внутри полигона
+    if (isRectangleInsidePolygon(textRect, poly)) {
+      maxValidSize = fontSize;
+    } else {
+      // Если текущий размер не помещается, останавливаемся
+      break;
+    }
+  }
+
+  // Делаем более точную подгонку для найденного диапазона
+  if (maxValidSize > 8) {
+    const preciseStep = 0.5;
+    for (
+      fontSize = maxValidSize;
+      fontSize <= maxValidSize + step;
+      fontSize += preciseStep
+    ) {
+      const textWidth = textLength * fontSize * FONT_WIDTH_RATIO;
+      const textHeight = fontSize * FONT_HEIGHT_RATIO;
+
+      const textRect = {
+        x: center.x - textWidth / 2,
+        y: center.y - textHeight / 2,
+        width: textWidth,
+        height: textHeight,
+      };
+
+      if (isRectangleInsidePolygon(textRect, poly)) {
+        maxValidSize = fontSize;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return Math.max(8, Math.min(100, maxValidSize));
 }
 
 // Пересечение отрезка (p1->p2) с бесконечной линией, определенной (a->b)
@@ -480,11 +567,15 @@ function polygonsToSvg(polys: Polygon[], rng: () => number) {
   const shuffledPolys = shuffle(polys, rng);
 
   // Вычисляем центроиды для каждого перемешанного полигона
-  const polyData = shuffledPolys.map((poly, index) => ({
-    polygon: poly,
-    center: centroid(poly),
-    number: index + 1,
-  }));
+  const polyData = shuffledPolys.map((poly, index) => {
+    const numberText = String(index + 1);
+    return {
+      polygon: poly,
+      center: centroid(poly),
+      number: index + 1,
+      fontSize: calculateOptimalFontSize(poly, numberText.length),
+    };
+  });
 
   // также строим заливки многоугольников (нам нужна только заливка исходного квадрата; по запросу пользователя)
   return { segPaths: paths, polyData };
@@ -494,6 +585,8 @@ function polygonsToSvg(polys: Polygon[], rng: () => number) {
 type Props = Partial<Options> & { className?: string };
 
 export default function SquareSplitterSVG(props: Props) {
+  const svgRef = useRef<SVGSVGElement>(null);
+
   const options: Options = {
     n: props.n ?? 8,
     svgSize: props.svgSize ?? DEFAULTS.svgSize!,
@@ -523,6 +616,30 @@ export default function SquareSplitterSVG(props: Props) {
   ]);
 
   const size = options.svgSize!;
+
+  const handleDownload = () => {
+    if (svgRef.current) {
+      downloadSVG(svgRef.current, "split-square.svg");
+    }
+  };
+
+  function downloadSVG(svgElement: SVGSVGElement, filename = "result.svg") {
+    const serializer = new XMLSerializer();
+    const source = serializer.serializeToString(svgElement);
+
+    const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div>
       <span>Полигонов: {polyData.length} </span>
@@ -531,6 +648,8 @@ export default function SquareSplitterSVG(props: Props) {
         height={size}
         viewBox={`0 0 ${size} ${size}`}
         className={props.className}
+        ref={svgRef}
+        xmlns="http://www.w3.org/2000/svg"
       >
         {/* заливка исходного квадрата желтым */}
         <rect
@@ -538,21 +657,25 @@ export default function SquareSplitterSVG(props: Props) {
           y={0}
           width={size}
           height={size}
-          fill="#ffeb3b"
-          stroke="#000"
+          fill="transparent"
+          stroke="oklch(21.6% 0.006 56.043)"
           strokeWidth={2}
         />
         {/* рисуем уникальные ребра */}
-        <g stroke="#000" strokeWidth={2} fill="none" strokeLinecap="round">
+        <g
+          stroke="oklch(26.9% 0 0)"
+          strokeWidth={2}
+          fill="none"
+          strokeLinecap="round"
+        >
           {segPaths.map((d, i) => (
             <path key={i} d={d} />
           ))}
         </g>
         {/* рисуем номера в центрах полигонов */}
         <g
-          fill="#000"
-          fontSize="20"
-          fontFamily="Inter, sans-serif"
+          fill="oklch(26.9% 0 0)"
+          className={lacquer.className}
           textAnchor="middle"
           dominantBaseline="central"
         >
@@ -561,6 +684,7 @@ export default function SquareSplitterSVG(props: Props) {
               key={i}
               x={item.center.x.toFixed(2)}
               y={item.center.y.toFixed(2)}
+              fontSize={item.fontSize.toFixed(1)}
               fontWeight="bold"
             >
               {item.number}
@@ -568,6 +692,7 @@ export default function SquareSplitterSVG(props: Props) {
           ))}
         </g>
       </svg>
+      <button onClick={handleDownload}>Скачать SVG</button>
     </div>
   );
 }

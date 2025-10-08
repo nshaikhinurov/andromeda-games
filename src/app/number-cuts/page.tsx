@@ -9,8 +9,8 @@ export default function Page() {
         svgSize={600}
         angleQuantization={9}
         enforceAngles={true}
-        S_ratio={1.5}
-        B_ratio={2.1}
+        S_ratio={1.75}
+        B_ratio={2.3}
         max_attempts={10000}
       />
     </div>
