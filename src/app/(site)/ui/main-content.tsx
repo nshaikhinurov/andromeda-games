@@ -33,9 +33,13 @@ export const MainContent = () => {
               width={198.08}
               height={64.45}
               unoptimized
-              className="w-[80%] h-auto mx-auto object-contain transition-transform group-hover:scale-105"
+              className="mx-auto h-auto w-[80%] object-contain transition-transform group-hover:scale-105"
             />
           }
+        />
+        <GameCard
+          title="Signal 47"
+          description="Can you understand the signal from space?"
         />
         <GameCard title="Tango Game" description="Fill the grid with colors" />
         <GameCard
