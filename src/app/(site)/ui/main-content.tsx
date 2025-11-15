@@ -1,3 +1,5 @@
+import { jetbrainsMono } from "@/app/void/layout";
+import { voidGameDescription } from "@/app/void/page";
 import Image from "next/image";
 import { GameCard } from "./game-card";
 
@@ -33,8 +35,20 @@ export const MainContent = () => {
               width={198.08}
               height={64.45}
               unoptimized
-              className="w-[80%] h-auto mx-auto object-contain transition-transform group-hover:scale-105"
+              className="mx-auto h-auto w-[80%] object-contain transition-transform group-hover:scale-105"
             />
+          }
+        />
+        <GameCard
+          href="/void"
+          title="void"
+          description={voidGameDescription}
+          thumbnail={
+            <div
+              className={`${jetbrainsMono.className} flex h-full w-full items-center justify-center bg-neutral-900 p-4 text-4xl font-bold text-gray-200`}
+            >
+              void
+            </div>
           }
         />
         <GameCard title="Tango Game" description="Fill the grid with colors" />
